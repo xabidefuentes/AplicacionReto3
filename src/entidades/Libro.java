@@ -1,4 +1,4 @@
-package comprobaciones;
+package entidades;
 
 public class Libro {
 }
