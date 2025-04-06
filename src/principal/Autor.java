@@ -1,4 +1,4 @@
-package entidades;
+package principal;
 
 public class Autor {
 }
