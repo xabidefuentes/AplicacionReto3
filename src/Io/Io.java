@@ -1,6 +1,12 @@
+package Io;
+
+import principal.Prestamo;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class Io {
@@ -34,9 +40,21 @@ public static Connection getConexion(){
         return true;
     }
 
+    public static boolean comprobarExistencia(Connection conn, String tabla, String columna, String valor) {
+        String sql = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = '" + valor + "'";
+        try (Statement stmt = conn.createStatement(); var rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            Io.sop("⚠️ Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
+        }
+        return false;
+    }
+
 // FUNCIONES DE ESCANER
     private static final Scanner scanner = new Scanner(System.in);
-    public static String leerTexto(String mensaje) {
+    public static String leerString(String mensaje) {
         System.out.print(mensaje);
         while (!scanner.hasNextLine()) {
             System.out.println("Entrada no válida. Intenta otra vez.");
@@ -45,7 +63,7 @@ public static Connection getConexion(){
         return scanner.nextLine();
     }
 
-    public static int leerNumero(String mensaje) {
+    public static int leerInt(String mensaje) {
         System.out.print(mensaje);
         while (!scanner.hasNextInt()) {
             System.out.println("Entrada no válida. Intenta otra vez.");
@@ -56,9 +74,19 @@ public static Connection getConexion(){
         return valor;
     }
 
+    public static LocalDate leerDate(String mensaje) {
+        System.out.print(mensaje);
+        while (!scanner.hasNextLine()) {
+            System.out.println("Entrada no válida. Intenta otra vez.");
+            scanner.next();
+        }
+        String fechaStr = scanner.nextLine();
+        return LocalDate.parse(fechaStr);
+    }
+
     public static void main(String[] args) {
-        String texto = leerTexto("Introduce un texto: ");
-        int numero = leerNumero("Introduce un número: ");
+        /*String texto = leerString("Introduce un texto: ");
+        int numero = leerInt("Introduce un número: ");
         sop("Texto introducido: " + texto);
         sop("Número introducido: " + numero);
 
@@ -68,6 +96,9 @@ public static Connection getConexion(){
             cerrarConexion(conn);
         } else {
             sop("Error al conectar a la base de datos.");
-        }
+        }*/
+
+        Prestamo prestamo = new Prestamo();
+        Prestamo.menuPrestamo();
     }
 }
