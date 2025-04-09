@@ -80,11 +80,14 @@ public class Prestamo {
     }
 
     public static void menuPrestamo() {
-        Io.sop("*************** GESTIÓN DE PRESTAMOS ***************");
-        Io.sop("1. Añadir Prestamo");
-        Io.sop("2. Eliminar Prestamo");
-        Io.sop("3. Modificar Prestamo");
-        Io.sop("4. Volver al menú principal");
+        Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
+        Io.sop("║                         GESTIÓN DE PRÉSTAMOS                          ║");
+        Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
+        Io.sop("║  1. 📖 Añadir Préstamo                                                ║");
+        Io.sop("║  2. ❌ Eliminar Préstamo                                              ║");
+        Io.sop("║  3. ✏️ Modificar Préstamo                                             ║");
+        Io.sop("║  4. 🔙 Volver al Menú Principal                                       ║");
+        Io.sop("╚═══════════════════════════════════════════════════════════════════════╝");
         int opcion = Io.leerInt("Selecciona una opción: ");
         switch (opcion) {
             case 1:
