@@ -3,7 +3,6 @@ import Io.*;
 import conexiones.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Prestamo {
     // Atributos
@@ -85,7 +84,7 @@ public class Prestamo {
         Io.sop("1. Añadir Prestamo");
         Io.sop("2. Eliminar Prestamo");
         Io.sop("3. Modificar Prestamo");
-        Io.sop("4. Salir");
+        Io.sop("4. Volver al menú principal");
         int opcion = Io.leerInt("Selecciona una opción: ");
         switch (opcion) {
             case 1:
@@ -98,8 +97,8 @@ public class Prestamo {
                 PrestamoCN.modificarPrestamo();
                 break;
             case 4:
-                System.out.println("Saliendo del menú de préstamos.");
-                break;
+                System.out.println("Saliendo del menú de préstamos.");;
+                main.menuPrincipal();
             default:
                 System.out.println("Opción no válida. Intenta otra vez.");
         }
