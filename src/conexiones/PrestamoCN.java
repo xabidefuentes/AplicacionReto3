@@ -7,6 +7,8 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.Scanner;
 
+import static Io.Io.PADL;
+
 public class PrestamoCN {
     public static void añadirPrestamo() {
         Connection conn = Io.getConexion();
@@ -51,15 +53,7 @@ public class PrestamoCN {
 
     public static void borrarPrestamo(){
         Connection conn = Io.getConexion();
-        int idEjemplar;
-        consultaTablaPaginada(conn, 5, 1);
-        idEjemplar = Io.leerInt("Ingresa el ID del ejemplar que deseas borrar: ");
-        buscarPrestamo(conn, idEjemplar);
-        if (ejecutarDelete(conn, idEjemplar)) {
-            Io.sop("✅ Préstamo eliminado correctamente.");
-        } else {
-            Io.sop("❌ Error al eliminar el préstamo.");
-        }
+        consultaTablaDelete(conn, 5, 1);
 
     }
 
@@ -120,7 +114,7 @@ public class PrestamoCN {
         return true;
     }
 
-    public static boolean ejecutarDelete (Connection conn, int idPrestamo) {
+    public static boolean ejecutarDelete (Connection conn, String idPrestamo) {
         String sql = "DELETE FROM prestamos WHERE id_prestamo = " + idPrestamo;
         try {
             Statement stmt = conn.createStatement();
@@ -145,15 +139,13 @@ public class PrestamoCN {
         return true;
     }
 
-    public static void main(String[] args) {
-        borrarPrestamo();
-    }
     public static void consultaTablaDelete (Connection conn, int totalRegistros, int pagina) {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        String idPrestamo = "", FechaPrestamo = "", FechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "";
-        int offset;
+        String idPrestamo = "", FechaPrestamo = "", FechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "", swIdSeleccionado = null;
+        int offset, posicion = 0;
+        String[] aId = new String[totalRegistros];
         while (!salir) {
             offset = (pagina - 1) * totalRegistros;
             String sql = "SELECT * FROM prestamos LIMIT " + totalRegistros + " OFFSET " + offset;
@@ -166,7 +158,7 @@ public class PrestamoCN {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
 
-                int cont = offset + 1; // Aquí empieza desde el número correcto
+                int cont = 0; // Aquí empieza desde el número correcto
                 while (rs.next()) {
                     idPrestamo = PADL(rs.getString("id_prestamo"), 2);
                     FechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
@@ -174,6 +166,7 @@ public class PrestamoCN {
                     dniUsuario = PADL(rs.getString("fk_dni_usuario"), 11);
                     idEjemplar = PADL(rs.getString("fk_id_ejemplar"), 11);
                     dniEmpleado = PADL(rs.getString("fk_dni_empleado"), 9);
+                    aId[cont] = idPrestamo;
                     Io.sop(idPrestamo + " | " + FechaPrestamo + " | " + FechaDevolucion + " | " + dniUsuario + " | " + idEjemplar + " | " + dniEmpleado);
                     cont++;
                 }
@@ -199,10 +192,18 @@ public class PrestamoCN {
                 case 'x' | 'X':
                     salir = true;
                     break;
+                case '1', '2', '3', '4', '5', '6', '7', '8', '9':
+                    posicion = Character.getNumericValue(opc) - 1;
+                    swIdSeleccionado = aId[posicion - 1];
+                    salir = true;
+                    break;
                 default:
                     Io.sop("Opcion no valida");
             }
         }
+        ejecutarDelete(conn, swIdSeleccionado);
+        Io.sop("✅ Préstamo con ID: " + swIdSeleccionado + " eliminado correctamente.");
+        Prestamo.menuPrestamo();
     }
     public static ResultSet ejecutarSelect (Connection conn, String sql) {
         PreparedStatement st = null;
@@ -215,16 +216,6 @@ public class PrestamoCN {
             e.printStackTrace();
         }
         return null;
-    }
-    public static String PADL(String str, int len) {
-        if (str.length() > len) {
-            return str.substring(0, len);
-        } else {
-            while (str.length() < len) {
-                str += " ";
-            }
-            return str;
-        }
     }
 
     public static char leerCaracter(){

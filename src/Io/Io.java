@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Scanner;
 
 public class Io {
@@ -99,6 +100,44 @@ public static Connection getConexion(){
         }*/
 
         Prestamo prestamo = new Prestamo();
-        Prestamo.menuPrestamo();
+       /* Prestamo.menuPrestamo();*/
     }
+    public static String DTOC() {
+        Calendar c1 = Calendar.getInstance();
+        int dia = c1.get(Calendar.DAY_OF_MONTH);
+        int mes = c1.get(Calendar.MONTH) + 1; // Enero es 0
+        int anio = c1.get(Calendar.YEAR);
+
+        // Obtenemos el nombre del mes
+        String nombreMes = "";
+        switch (mes) {
+            case 1:  nombreMes = "Enero"; break;
+            case 2:  nombreMes = "Febrero"; break;
+            case 3:  nombreMes = "Marzo"; break;
+            case 4:  nombreMes = "Abril"; break;
+            case 5:  nombreMes = "Mayo"; break;
+            case 6:  nombreMes = "Junio"; break;
+            case 7:  nombreMes = "Julio"; break;
+            case 8:  nombreMes = "Agosto"; break;
+            case 9:  nombreMes = "Septiembre"; break;
+            case 10: nombreMes = "Octubre"; break;
+            case 11: nombreMes = "Noviembre"; break;
+            case 12: nombreMes = "Diciembre"; break;
+        }
+
+        // Devolvemos la fecha en el formato adecuado
+        return dia + " de " + nombreMes + " de " + anio;
+    }
+
+    public static String PADL(String str, int len) {
+        if (str.length() > len) {
+            return str.substring(0, len);
+        } else {
+            while (str.length() < len) {
+                str += " ";
+            }
+            return str;
+        }
+    }
+
 }
