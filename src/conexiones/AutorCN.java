@@ -10,7 +10,9 @@ import conexiones.*;
 
 public class AutorCN {
     //FUNCIONES//
+
     //MENU AUTORES//
+
     public static void menuAutores(){
         Io.sop("***********************************************************************");
         Io.sop("************************  GESTION DE AUTORES  ************************");
@@ -52,14 +54,13 @@ public class AutorCN {
         apellido = Io.leerString("Dime el apellido del autor: ");//Leemos del teclado
         nacionalidad = Io.leerString("Dime de donde es/era el autor: ");//Leemos del teclado
         fechaNac = Io.leerDate("Dime cuando nació el autor: ");//Leemos del teclado
-        //Comprobacion para ver si el autor esta repetido
+        //Comprobacion para ver si el id_autor esta repetido
         do {
-            vDni = Io.leerString("Dime el dni del usuario: ");
-            if (Io.comprobarExistencia(conn, "usuarios", "dni", vDni)) {
-                Io.sop("Dni ya existe, vuelve a introducirlo");
+            id_autor = Io.leerInt("Dime el ID del autor que quieras ponerle: ");
+            if (Io.comprobarExistenciaInt(conn, "autores", "id_autor", id_autor)) {
+                Io.sop("ID ya existente, introduce otro");
             }
-        } while (Io.comprobarExistencia(conn, "usuarios", "dni", vDni));
-        
+        } while (Io.comprobarExistenciaInt(conn, "autores", "id_autor", id_autor));
         String sql = "INSERT INTO usuarios (id_autor, nombre, apellido, nacionalidad, fechaNac) " +
         "VALUES ('" + id_autor + "', '" + nombre + "', '" + apellido + "', '" + nacionalidad + "', '" + fechaNac + "')";       
         try{

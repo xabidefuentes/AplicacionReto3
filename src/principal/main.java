@@ -1,6 +1,7 @@
 package principal;
 
 import Io.*;
+import conexiones.UsuarioCN;
 
 public class main {
     public static void main(String[] args) {
@@ -9,11 +10,11 @@ public class main {
     public static void menuPrincipal() {
         Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
         Io.sop("║              BIENVENIDO A LA BIBLIOTECA MUNICIPAL DE MUSKIZ           ║");
-        Io.sop("║                           " + Io.DTOC() + "                          ║");
+        Io.sop("║                           " + Io.DTOC() + "                         ║");
         Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
         Io.sop("║  1. 📖  GESTIONAR PRÉSTAMOS                                           ║");
         Io.sop("║  2. 📚  GESTIONAR LIBROS                                              ║");
-        Io.sop("║  3. ✍️   GESTIONAR AUTORES                                            ║");
+        Io.sop("║  3. ✍️  GESTIONAR AUTORES                                             ║");
         Io.sop("║  4. 👥  GESTIONAR USUARIOS                                            ║");
         Io.sop("║  5. 🔎  BÚSQUEDAS                                                     ║");
         Io.sop("║  6. ❌  SALIR                                                         ║");
@@ -30,7 +31,7 @@ public class main {
                 // Llamar a la función de gestionar autores
                 break;
             case 4:
-                // Llamar a la función de gestionar usuarios
+                UsuarioCN.menuUsuario();
                 break;
             case 5:
                 // Llamar a la función de búsquedas
