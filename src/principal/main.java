@@ -1,6 +1,7 @@
 package principal;
 
 import Io.*;
+import conexiones.LibroCN;
 import conexiones.UsuarioCN;
 
 public class main {
@@ -25,7 +26,7 @@ public class main {
                 Prestamo.menuPrestamo();
                 break;
             case 2:
-                // Llamar a la función de gestionar libros
+                LibroCN.menuLibro();
                 break;
             case 3:
                 // Llamar a la función de gestionar autores
