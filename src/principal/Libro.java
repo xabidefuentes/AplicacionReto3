@@ -9,10 +9,10 @@ public class Libro {
     private int ISBN;
     private int numCopias;
     private String genero;
-    private Date anioPublicacion;
+    private int anioPublicacion;
     private String editorial;
 
-    public Libro (int pId_libro, String pTitulo, int pISBN, int pNumCopias, String pGenero, Date pAnioPublicacion, String pEditorial){
+    public Libro (int pId_libro, String pTitulo, int pISBN, int pNumCopias, String pGenero, int pAnioPublicacion, String pEditorial){
         this.id_libro=pId_libro;
         this.titulo=pTitulo;
         this.ISBN=pISBN;
@@ -37,7 +37,7 @@ public class Libro {
     public String getgenero(){
         return this.genero;
     }
-    public Date getanioPublicacion(){
+    public int getanioPublicacion(){
         return this.anioPublicacion;
     }
     public String geteditorial(){
@@ -59,7 +59,7 @@ public class Libro {
     public void setgenero(String genero){
         this.genero=genero;
     }
-    public void setanioPublicacion(Date anioPublicacion){
+    public void setanioPublicacion(int anioPublicacion){
         this.anioPublicacion=anioPublicacion;
     }
     public void seteditorial(String editorial){
