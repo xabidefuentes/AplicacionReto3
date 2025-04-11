@@ -17,7 +17,7 @@ public class EjemplarCN {
                 int opcion = Io.leerInt("Selecciona una opción: ");
                 switch (opcion) {
                     case 1:
-                        /*LibroCN.insertarLibro();*/
+                        /*EjemplarCN.insertarLibro();*/
                         break;
                     case 2:
                         /*LibroCN.borrarLibro();*/

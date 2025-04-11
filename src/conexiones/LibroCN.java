@@ -27,10 +27,10 @@ public class LibroCN {
                     LibroCN.insertarLibro();
                     break;
                 case 2:
-                    LibroCN.borrarLibro();
+                    /*LibroCN.borrarLibro();*/
                     break;
                 case 3:
-                    LibroCN.modificarLibro();
+                    /*LibroCN.modificarLibro();*/
                     break;
                 case 4:
                 Io.sop("Saliendo...");
@@ -45,7 +45,7 @@ public class LibroCN {
 
     public static int insertarLibro(){
         Connection conn =Io.getConexion();
-        int ncambios = 0,vId_libro,vISBN,vNumcopias;
+        int ncambios = 0,vId_libro,vISBN,vNumcopias,vAnioPublicacion;
         String vTitulo,vGenero,vEditorial;
         /*Date vAnioPublicacion;*/
         System.out.println("Comenzamos a introducir los datos");
@@ -55,8 +55,8 @@ public class LibroCN {
         vISBN = Io.leerInt("Dime el ISBN del libro: ");
         vNumcopias = Io.leerInt("Dime el número de copias del libro: ");
         vId_libro = Io.leerInt("Dime el ID del libro: ");
-        /*vAnioPublicacion=Io.leerDate("Dime el año de publicacion del libro");*/      //////////////////////ARREGLARLO
-        String sql = "insert into libros (titulo,genero,editorial,isbn,numcopias,id_libro) values ('"+vTitulo+"','"+vGenero+"','"+vEditorial+"','"+ vISBN+"','"+vNumcopias+"','"+vId_libro+"')";  /*,'"+vAnioPublicacion+"' */
+        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro");     //////////////////////ARREGLARLO
+        String sql = "insert into libros (titulo,genero,editorial,isbn,numcopias,id_libro) values ('"+vTitulo+"','"+vGenero+"','"+vEditorial+"','"+ vISBN+"','"+vNumcopias+"','"+vId_libro+"','"+vAnioPublicacion+"')";  /*,'"+vAnioPublicacion+"' */
         try{
             Statement st = conn.createStatement();   
             ncambios = st.executeUpdate(sql);
@@ -70,10 +70,10 @@ public class LibroCN {
 
     }
 
-    /*public static boolean borrarLibro(Connection conn, int id_libro){
+    public static boolean borrarLibro(Connection conn, int id_libro){
             PreparedStatement st;
             int borrados;
-            String sql="DELETE FROM USUARIOS WHERE USUCOD='"+id_libro+"'";
+            String sql="DELETE FROM libros WHERE USUCOD='"+id_libro+"'";
             try{
                 st= conn.prepareStatement(sql);
                 borrados=st.executeUpdate();
@@ -83,12 +83,12 @@ public class LibroCN {
                 return false;
             }
         
-    }*/
-
-
-    public static int modificarLibro(){
-
     }
+
+
+    /*public static int modificarLibro(){
+
+    }*/
 
 
 
