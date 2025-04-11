@@ -1,13 +1,10 @@
 package conexiones;
 import Io.Io;
-import principal.Prestamo;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 
 public class UsuarioCN {
 
@@ -106,16 +103,15 @@ Io.sop("***********************************************************************"
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        Date vFechaIni,vFechaFin;
-        int offset,cont,vTelefono;
-        String vDni,vNom,vEmail,sql,vPasword,vPen;
+        int offset,vTelefono;
+        String vDni,vNom,vEmail,sql,vPasword,vPen,vFechaIni,vFechaFin;;
         while (!salir) {
             offset = ( nPag -1)* nRegPag;
             sql = " select * from usuarios limit " +nRegPag+ " offset "+ offset + " ";
             Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
             Io.sop("  ║                                         LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                                  ║");
             Io.sop("╠════════════════╦════════════════════════╦══════════════╦══════════════════════════════╦════════════╦════════════════╦════════════════╦════════════════╣");
-            Io.sop("║ DNI            ║ NOMBRE                 ║ TELÉFONO     ║ EMAIL                        ║ PASSWORD   ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN      ║");
+            Io.sop("║ DNI         ║ NOMBRE                 ║ TELÉFONO     ║ EMAIL                        ║ PASSWORD   ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN      ║");
             Io.sop("╚════════════════╩════════════════════════╩══════════════╩══════════════════════════════╩════════════╩════════════════╩════════════════╩════════════════╝");
             try {
                 stm = conn.createStatement();
@@ -132,11 +128,13 @@ Io.sop("***********************************************************************"
                     vPasword= padl(vPasword,5);
                     vPen =rs.getString("penalizacion");
                     vPen = padl(vPen,3);
-                    vFechaIni = rs.getDate("fecha_inicio_penalizacion");
+                    //vFechaIni = rs.getDate("fecha_inicio_penalizacion");
+                    vFechaIni =rs.getString("fecha_inicio_penalizacion");
+                    vFechaFin = rs.getString("fecha_fin_penalizacion");
                     //vFechaIni = padl(vFechaIni, 10);
-                    vFechaFin = rs.getDate("fecha_fin_penalizacion");
+                    //vFechaFin = rs.getDate("fecha_fin_penalizacion");
                     //vFechaFin = padl(vFechaFin,10);
-                    System.out.println(padl( ".-",5)+ vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono+"| "+vEmail+" |"+vPasword+"|"
+                    System.out.println( vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono+"| "+vEmail+" |"+vPasword+"|"
                     +vFechaIni+"|"+vFechaFin);
                     
                 }
@@ -147,17 +145,17 @@ Io.sop("***********************************************************************"
             Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
             Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
             Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
-            Io.sop("Muevete por la tabla y selecciona el ID del préstamo que deseas eliminar: ");
+            Io.sop("Muevete por la tabla y selecciona el dni del usuario que deseas eliminar: ");
             char opc = Io.leerCaracter();
             switch (opc) {
                 case '+':
-                    pagina++;
+                    nPag++;
                     break;
                 case '-':
-                    if (pagina > 1) {
-                        pagina--;
+                    if (nPag > 1) {
+                        nPag--;
                     } else {
-                        pagina = 1;
+                        nPag = 1;
                     }
                     break;
                 case 'x' | 'X':
@@ -168,15 +166,31 @@ Io.sop("***********************************************************************"
                     break;
             }
         }
-        swIdSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ID del préstamo: ");
-        ejecutarDelete(conn, swIdSeleccionado);
-        sop("✅ Préstamo con ID: " + swIdSeleccionado + " eliminado correctamente.");
-        Prestamo.menuPrestamo();
+         String vDniBorrado = Io.leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo dni del usuario:  ");
+         if (UsuarioCN.borrarDato(conn,vDniBorrado)){
+            System.out.println("Usuario borrado correctamente");
+        }else{
+            System.out.println("Usuario no se ha podido borrar");
+        }
+        UsuarioCN.menuUsuario();//falta revisar esto
     }
 
 
 
-
+    public static boolean borrarDato(Connection conn,String vDni){//Borrar un campo en el que nos pasan el codigo
+        Statement st;
+        int borrados;
+        String sql = "delete from usuarios where dni = '"+vDni+"'";
+        try{
+            st = conn.prepareStatement(sql);
+            borrados = st.executeUpdate(sql);
+            return borrados>0;
+        }
+        catch(SQLException e){
+            System.out.println("Problema al borrar: "+sql+e.getErrorCode()+" "+e.getMessage());
+            return false;
+        }
+        }
 
 
 
@@ -356,7 +370,7 @@ public static void borrarUsuarioTabla (int totalRegistros){ //Visualizamos la ta
                 UsuarioCN.insertarUsuario();
                 break;
             case 2:
-                UsuarioCN.consultarUsuarioPaginado(conn, 10, 1);;
+                UsuarioCN.consultaTablaDelete(conn, 10, 1);
                 break;
             case 3:
                 
