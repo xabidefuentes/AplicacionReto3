@@ -55,4 +55,6 @@ public class Autor {
     public void setNacionalidad(String pNacionalidad){
         this.nacionalidad=pNacionalidad;
     }
+
+    
 }
