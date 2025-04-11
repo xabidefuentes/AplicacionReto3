@@ -1,10 +1,13 @@
 package conexiones;
 import Io.Io;
+import principal.Prestamo;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 public class UsuarioCN {
 
@@ -26,7 +29,7 @@ Io.sop("***********************************************************************"
                 UsuarioCN.insertarUsuario();
                 break;
             case 2:
-               UsuarioCN.BorrarUsuario(); 
+               UsuarioCN.borrarUsuarioTabla(10); 
                 break;
             case 3:
                 
@@ -99,6 +102,86 @@ Io.sop("***********************************************************************"
         return cambios;
     }
    
+ public static void consultaTablaDelete(Connection conn, int nRegPag, int nPag) {
+        Statement stm = null;
+        ResultSet rs = null;
+        boolean salir = false;
+        Date vFechaIni,vFechaFin;
+        int offset,cont,vTelefono;
+        String vDni,vNom,vEmail,sql,vPasword,vPen;
+        while (!salir) {
+            offset = ( nPag -1)* nRegPag;
+            sql = " select * from usuarios limit " +nRegPag+ " offset "+ offset + " ";
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("  ║                                         LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                                  ║");
+            Io.sop("╠════════════════╦════════════════════════╦══════════════╦══════════════════════════════╦════════════╦════════════════╦════════════════╦════════════════╣");
+            Io.sop("║ DNI            ║ NOMBRE                 ║ TELÉFONO     ║ EMAIL                        ║ PASSWORD   ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN      ║");
+            Io.sop("╚════════════════╩════════════════════════╩══════════════╩══════════════════════════════╩════════════╩════════════════╩════════════════╩════════════════╝");
+            try {
+                stm = conn.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                    vDni = rs.getString("dni");
+                    vDni= padl(vDni,10);
+                    vNom = rs.getString("nombre");
+                    vNom = padl ( vNom,20);// Para que quede bien en columna del mismo tamaño
+                    vTelefono = rs.getInt("telefono");
+                    vEmail = rs.getString("email");
+                    vEmail = padl(vEmail, 20);
+                    vPasword = rs.getString("password");
+                    vPasword= padl(vPasword,5);
+                    vPen =rs.getString("penalizacion");
+                    vPen = padl(vPen,3);
+                    vFechaIni = rs.getDate("fecha_inicio_penalizacion");
+                    //vFechaIni = padl(vFechaIni, 10);
+                    vFechaFin = rs.getDate("fecha_fin_penalizacion");
+                    //vFechaFin = padl(vFechaFin,10);
+                    System.out.println(padl( ".-",5)+ vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono+"| "+vEmail+" |"+vPasword+"|"
+                    +vFechaIni+"|"+vFechaFin);
+                    
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+            Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("Muevete por la tabla y selecciona el ID del préstamo que deseas eliminar: ");
+            char opc = Io.leerCaracter();
+            switch (opc) {
+                case '+':
+                    pagina++;
+                    break;
+                case '-':
+                    if (pagina > 1) {
+                        pagina--;
+                    } else {
+                        pagina = 1;
+                    }
+                    break;
+                case 'x' | 'X':
+                    salir = true;
+                    break;
+                default:
+                    salir = true;
+                    break;
+            }
+        }
+        swIdSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ID del préstamo: ");
+        ejecutarDelete(conn, swIdSeleccionado);
+        sop("✅ Préstamo con ID: " + swIdSeleccionado + " eliminado correctamente.");
+        Prestamo.menuPrestamo();
+    }
+
+
+
+
+
+
+
+
+
     
     //BORRAR USUARIO
     public static boolean BorrarUsuario(){   // Pedimos el dni por teclado que queremos borrar
@@ -167,6 +250,9 @@ public static void consultarUsuarioPaginado (Connection conn,int nRegPag,int nPa
                 break;
             case 'x' : salir=true;
                 break;
+                default:
+                salir=true;
+                break;
         }
     }
     
@@ -203,7 +289,8 @@ public static String padl (String texto, int longitud){
 
 ////CONSULTAR TABLA
 
-public static void borrarUsuarioTabla (Connection conn, int totalRegistros){ //Visualizamos la tabla 
+public static void borrarUsuarioTabla (int totalRegistros){ //Visualizamos la tabla 
+    Connection conn = Io.getConexion();
     Statement stm = null;
     ResultSet rs = null;//eso seria como apuntar al fichero se usa cuando quieres ver la informacion, no cuando quieres ejecutar algo
     String sql = "select * from usuarios";
@@ -269,7 +356,7 @@ public static void borrarUsuarioTabla (Connection conn, int totalRegistros){ //V
                 UsuarioCN.insertarUsuario();
                 break;
             case 2:
-                UsuarioCN.borrarUsuarioTabla(conn,10 );
+                UsuarioCN.consultarUsuarioPaginado(conn, 10, 1);;
                 break;
             case 3:
                 
