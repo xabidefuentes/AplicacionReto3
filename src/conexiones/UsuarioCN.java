@@ -29,7 +29,7 @@ Io.sop("***********************************************************************"
                UsuarioCN.borrarUsuario();
                 break;
             case 3:
-                
+                UsuarioCN.modificarUsuario();
                 break;
             case 4:
             Io.sop("Saliendo...");
@@ -45,8 +45,13 @@ Io.sop("***********************************************************************"
         borrarUsuarioConsultandoTabla(conn, 10, 1);
         Io.cerrarConexion(conn);
     }
-    
 
+
+    public static void modificarUsuario(){
+        Connection conn = Io.getConexion();
+        modificarUsuarioConTabla(conn, 5, 1);
+        Io.cerrarConexion(conn);
+    }
 
     ///Metodo para validar el email 
     public static boolean esCorreoValido(String correo) {
@@ -104,6 +109,7 @@ Io.sop("***********************************************************************"
         return cambios;
     }
    
+    //Metodo para borrar el usuario consultandolo en la tabla
  public static void borrarUsuarioConsultandoTabla(Connection conn, int nRegPag, int nPag) {
         Statement stm = null;
         ResultSet rs = null;
@@ -210,31 +216,43 @@ public static void consultarUsuarioPaginado (Connection conn,int nRegPag,int nPa
     Statement stm = null;
     ResultSet rs = null;
     int offset,cont,vTelefono;
-    String vDni,vNom,vEmail,sql;
+    String vDni,vNom,vEmail,sql,vTel,vPasword,vPen,vFechaFin,vFechaIni;
     boolean salir = false;
     while ( ! salir){//Control de las teclas +, -, ESC
         offset = ( nPag -1)* nRegPag;
         sql = " select * from usuarios limit " +nRegPag+ " offset "+ offset + " ";
-        rs = ejecutarSelect (conn,sql);
-        System.out.println(" TABLA DE USUARIOS Pag : "+ nPag);
-        System.out.println("-------------------------------");
-        cont = 0;
+        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop(  "║                                         LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                                   ║");
+        Io.sop("╠═════════╦════════════════════════╦══════════════════════════╦══════════════════════╦═════════════════╦════════════════╦════════════════╦════════════╣");
+        Io.sop("║ DNI     ║       NOMBRE           ║        EMAIL             ║        TELEFONO      ║     PASSWORD    ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN  ║");
+        Io.sop("╚═════════╩════════════════════════╩══════════════════════════╩══════════════════════╩═════════════════╩════════════════╩════════════════╩════════════╝");
         try {
             while ( rs.next()){
                 vDni = rs.getString("dni");
-                vDni= padl(vDni,10);
-                vNom = rs.getString("nombre");
-                vNom = padl ( vNom,20);// Para que quede bien en columna del mismo tamaño
-                vTelefono = rs.getInt("telefono");
-                vEmail = rs.getString("email");
-                vEmail = padl(vEmail, 20);
-                System.out.println(padl(cont++ +".-",5)+ vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono);
-                cont++;
+                    vDni= padl(vDni,10);
+                    vNom = rs.getString("nombre");
+                    vNom = padl ( vNom,20);// Para que quede bien en columna del mismo tamaño
+                    vTel = rs.getString("telefono");
+                    vTel = padl(vTel,23);
+                    vEmail = rs.getString("email");
+                    vEmail = padl(vEmail, 27);
+                    vPasword = rs.getString("password");
+                    vPasword= padl(vPasword,15);
+                    vPen =rs.getString("penalizacion");
+                    vPen = padl(vPen,15);
+                    vFechaIni =rs.getString("fecha_inicio_penalizacion");
+                    vFechaIni = padl(vFechaIni, 15);
+                    vFechaFin = rs.getString("fecha_fin_penalizacion");
+                    vFechaFin = padl(vFechaFin,20);
+                    System.out.println( vDni +" | "+ vNom +" | "+ vEmail+"| "+vTel+"| "+vPasword+" |"+vPen+"|"
+                    +vFechaIni+"|"+vFechaFin);
             }   
         }catch (SQLException  e){
             System.out.println("Problema al ejecutar sql "+ sql+ e.getErrorCode()+ " "+e.getMessage());
         }
-        System.out.println("[+] Pag.Sig, [-] Pag. Ant, [x] Abandonar, [Num] seleccionar");
+        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+        Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
         int opc = Io.leerInt("Elige una opcion");
         switch (opc){
             case '+' : nPag++;
@@ -283,70 +301,173 @@ public static String padl (String texto, int longitud){
     }
 }
 
-////CONSULTAR TABLA
-
-/*public static void borrarUsuarioTabla (int totalRegistros){ //Visualizamos la tabla 
-    Connection conn = Io.getConexion();
+public static void modificarUsuarioConTabla(Connection conn, int nRegPag, int nPag) {
     Statement stm = null;
-    ResultSet rs = null;//eso seria como apuntar al fichero se usa cuando quieres ver la informacion, no cuando quieres ejecutar algo
-    String sql = "select * from usuarios";
-    String vDni,vNom,vEmail,vTelefono;
-    try{
-        stm = conn.createStatement();
-        rs = stm.executeQuery(sql);
-        System.out.println("Todos los registros de la tabla usuarios");
-        int cont = 0;
-        while(rs.next()){//ESTO ES PARA QUE VAYA LEYENDO LINEAS DEL FICHERO HASTA QUE SE ACABE ( como un leer registro)
-            vDni = rs.getString("dni");//Aqui coge el valor de la tabla y se lo añado a la variable
-            vDni = padl(vDni,10);
-            vNom = rs.getString("nombre");
-            vNom = padl(vNom, 20);//sirve para que quede ordenado por columnas
-            vEmail = rs.getString("email");
-            vDni = padl(vDni, 20);
-            vTelefono = rs.getString("telefono");
-            vTelefono = padl(vTelefono,10);
-            System.out.println(vDni+"|"+vNom+"|"+vEmail+"|"+vTelefono);//Visualizo los datos de la tabla metidos en la variable
-            cont++;
-            if(cont>totalRegistros && totalRegistros !=0){
-                break;
+    ResultSet rs = null;
+    boolean salir = false;
+    int offset;
+    String vDni,vNom,vEmail,sql,vPasword,vPen,vFechaIni,vFechaFin,vTelefono;
+    while (!salir) {
+        offset = ( nPag -1)* nRegPag;
+        sql = " select * from usuarios limit " +nRegPag+ " offset "+ offset + " ";
+        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop(  "║                                         LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                                   ║");
+        Io.sop("╠═════════╦════════════════════════╦══════════════════════════╦══════════════════════╦═════════════════╦════════════════╦════════════════╦════════════╣");
+        Io.sop("║ DNI     ║       NOMBRE           ║        EMAIL             ║        TELEFONO      ║     PASSWORD    ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN  ║");
+        Io.sop("╚═════════╩════════════════════════╩══════════════════════════╩══════════════════════╩═════════════════╩════════════════╩════════════════╩════════════╝");
+        try {
+            stm = conn.createStatement();
+            rs = stm.executeQuery(sql);
+            while (rs.next()) {
+                vDni = rs.getString("dni");
+                vDni= padl(vDni,10);
+                vNom = rs.getString("nombre");
+                vNom = padl ( vNom,20);// Para que quede bien en columna del mismo tamaño
+                vTelefono = rs.getString("telefono");
+                vTelefono = padl(vTelefono,23);
+                vEmail = rs.getString("email");
+                vEmail = padl(vEmail, 27);
+                vPasword = rs.getString("password");
+                vPasword= padl(vPasword,15);
+                vPen =rs.getString("penalizacion");
+                vPen = padl(vPen,15);
+                vFechaIni =rs.getString("fecha_inicio_penalizacion");
+                vFechaIni = padl(vFechaIni, 15);
+                vFechaFin = rs.getString("fecha_fin_penalizacion");
+                vFechaFin = padl(vFechaFin,20);
+                System.out.println( vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono+"| "+vPasword+" |"+vPen+"|"
+                +vFechaIni+"|"+vFechaFin);
+                
             }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+        Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+        Io.sop("Muevete por la tabla y selecciona el dni del usuario que deseas modificar: ");
+        char opc = Io.leerCaracter();
+        switch (opc) {
+            case '+':
+                nPag++;
+                break;
+            case '-':
+                if (nPag > 1) {
+                    nPag--;
+                } else {
+                    nPag = 1;
+                }
+                break;
+            case 'x' | 'X':
+                salir = true;
+                break;
+            default:
+                salir = true;
+                break;
         }
     }
-    catch(SQLException exc){
-        System.out.println("Problema al consultar"+sql+exc.getErrorCode()+exc.getMessage());
+     String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo dni del usuario:  ");
+     if (!Io.comprobarExistencia(conn, "usuarios", "dni", vModificar)) {
+            Io.sop(" No existe ningún usuario con ese dni.");
+            return;
+        }
+        Io.sop("¿Qué campo del usuario  deseas modificar?");
+        Io.sop("1. Dni");
+        Io.sop("2. Nombre");
+        Io.sop("3. Telefono");
+        Io.sop("4. Email");
+        Io.sop("5. Penalizacion");
+        Io.sop("6. Fecha inicio Penalizacion");
+        Io.sop("7.Fecha fin de penalizacion");
+        Io.sop("8. Terminar");
+
+        char opc = Io.leerCaracter();
+        String campo = "", nuevoValor = "";
+
+        switch (opc) {
+            case '1':
+                campo = "dni";
+                nuevoValor = Io.leerString("Introduce el nuevo dni del usuario: ");
+                break;
+            case '2':
+                campo = "nombre";
+                nuevoValor = Io.leerString("Introduce el nuevo nombre del usuario");
+                break;
+            case '3':
+                campo = "Telefono";
+                nuevoValor =Io.leerString("Introduce el nuevo telefono");
+                break;
+            case '4':
+                campo = "email";
+                nuevoValor = Io.leerString("Introduce el nuevo email ");
+                break;
+            case '5':
+                campo = "penalizacion";
+                nuevoValor = Io.leerString("Introduce la nueva penalizacion Si/No: ");
+                break;
+            case '6':
+                campo = "fecha_inicio_penalizacion";
+                nuevoValor = Io.leerString("Introduce la nueva fecha de inicio de la penalizacion ");
+                break;
+            case '7':
+                campo = "fecha_fin_penalizacion";
+                nuevoValor = Io.leerString("Introduce la nueva fecha de fin de la penalizacion ");
+                break;
+            case '8':
+                salir = true;
+                break;
+            default:
+                Io.sop("Opción no válida.");
+        }
+
+        if (!campo.equals("")) {
+            if (ejecutarUpdateCampo(conn, vModificar, campo, nuevoValor)) {
+                Io.sop(" Usuario  modificado correctamente.");
+            } else {
+                Io.sop(" Error al modificar el usuario.");
+            }
+        }
+        UsuarioCN.menuUsuario();
+
     }
-    if (BorrarUsuario()){
-        System.out.println("Usuario borrado correctamente");
-    }else{
-        System.out.println("Usuario no se ha podido borrar");
+    
+    ////Modificar dato
+    public static boolean ejecutarUpdateCampo(Connection conn, String idAntiguo, String campo, String nuevoValor) {
+        String sql = "UPDATE usuarios SET " + campo + " = '" + nuevoValor + "' WHERE dni = '" + idAntiguo + "'";
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            Io.sop(" Error con la query: " + sql);
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
+
+
+
+
+
+
+
+public static void main(String[] args) {
+    
     menuUsuario();
-}*/
 
 
-
-
-
-
-
-
-
-
-
-    public static void main(String[] args) {
-    Connection conn =Io.getConexion();    
-
-
-        menuUsuario();
-   
-        
-
-
-
-   
-    }
 }
+
+
+
+
+
+
+
+
+}
+
 
 
 
