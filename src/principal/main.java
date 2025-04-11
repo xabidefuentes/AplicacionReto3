@@ -1,6 +1,7 @@
 package principal;
 
 import Io.*;
+import conexiones.UsuarioCN;
 
 public class main {
     public static void main(String[] args) {
@@ -30,7 +31,7 @@ public class main {
                 // Llamar a la función de gestionar autores
                 break;
             case 4:
-                // Llamar a la función de gestionar usuarios
+                UsuarioCN.menuUsuario();
                 break;
             case 5:
                 // Llamar a la función de búsquedas
