@@ -1,13 +1,10 @@
 package conexiones;
 import Io.*;
-import conexiones.*;
-import principal.Prestamo;
-
+import static Io.Io.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Scanner;
-
-import static Io.Io.*;
+import principal.Prestamo;
 
 public class PrestamoCN {
     public static void añadirPrestamo() {
@@ -231,7 +228,6 @@ public class PrestamoCN {
         }
         return true;
     }
-    public void comprobarPenalizacion
 
 
     public static void consultaTablaDelete (Connection conn, int totalRegistros, int pagina) {
@@ -327,18 +323,7 @@ public class PrestamoCN {
         return null;
     }
 
-    public static char leerCaracter(){
-        Scanner sc = new Scanner(System.in);
-        char letra = ' ';
-        String cadena = "";
-        cadena = sc.nextLine();
-        if (cadena.isEmpty()) {
-            letra = 13; // ENTER
-        } else {
-            letra = cadena.charAt(0);
-        }
-        return letra;
-    }
+   
 
     public static LocalDate sumar30dias(LocalDate FechaPrestamo) {
         return FechaPrestamo.plusDays(30);

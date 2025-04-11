@@ -1,7 +1,5 @@
 package Io;
 
-import principal.Prestamo;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -9,6 +7,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Scanner;
+import principal.Prestamo;
 
 public class Io {
 // SYSTEM  OUT
@@ -151,5 +150,25 @@ public static Connection getConexion(){
             return str;
         }
     }
+
+
+    public static char leerCaracter(){
+        Scanner sc = new Scanner(System.in);
+        char letra = ' ';
+        String cadena = "";
+        cadena = sc.nextLine();
+        if (cadena.isEmpty()) {
+            letra = 13; // ENTER
+        } else {
+            letra = cadena.charAt(0);
+        }
+        return letra;
+    }
+
+   
+
+
+
+    
 
 }
