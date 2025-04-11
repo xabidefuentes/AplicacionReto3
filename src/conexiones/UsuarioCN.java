@@ -42,18 +42,32 @@ Io.sop("***********************************************************************"
 
 public static int insertarUsuario(){
     Connection conn =Io.getConexion();
+    int randomPassword = (int)(Math.random() * 9000) + 1000; // genera número aleatorio entre 1000 y 9999
     int cambios = 0,vTelefono;
-    String vNombre,vApellido,vDni,vEmail;
-    System.out.println("Comenzamos a introducir los datos");
-    vNombre = Io.leerString("Dime el nombre del usuario: ");//Leemos del teclado
-    vApellido = Io.leerString("Dime el apellido del usuario: ");
-    vDni = Io.leerString("Dime el dni del usuario: ");
+    String vNombre,vDni,vEmail;
+    vNombre = Io.leerString("Dime el nombre y apellido del usuario: ");//Leemos del teclado
+    //Comprobacion para ver si el dni esta repetido
+    do {
+        vDni = Io.leerString("Dime el dni del usuario: ");
+        if (Io.comprobarExistencia(conn, "usuarios", "dni", vDni)) {
+            Io.sop("Dni ya existe, vuelve a introducirlo");
+        }
+    } while (Io.comprobarExistencia(conn, "usuarios", "dni", vDni));
+
     vEmail = Io.leerString("Dime el email del usuario: ");
     vTelefono = Io.leerInt("Dime el telefono del usuario: ");
-    String sql = "insert into usuarios (nombre,apellido,dni,email,telefono) values ('"+vNombre+"','"+vApellido+"','"+vDni+"','"+ vEmail+"','"+vTelefono+"')";
+    String sql = "INSERT INTO usuarios (dni, nombre, telefono, email, password, penalizacion, fecha_inicio_penalizacion, fecha_fin_penalizacion) " +
+    "VALUES ('" + vDni + "', '" + vNombre + "', '" + vTelefono + "', '" + vEmail + "', '" + randomPassword + "', 'No', '1111-11-11', '1111-11-11')";       
+    System.out.println("Contraseña generada para el usuario: " + randomPassword);  //Para mostrar la contraseña generada a el  usuario
     try{
         Statement st = conn.createStatement();   // es para que se agrege a la bbdd
         cambios = st.executeUpdate(sql);
+        if(cambios == 0){
+            System.out.println("No se ha añadido el registro");
+        }
+            else{
+                System.out.println("Registro añadido");
+            }
     }
     catch(SQLException e){
         System.out.println("Problema al insertar la tabla");

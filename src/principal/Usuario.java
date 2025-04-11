@@ -1,7 +1,7 @@
 package principal;
 
 public class Usuario extends Persona {
-    private boolean penalizacion;
+    private String penalizacion;
     private int fechaInicioPenalizacion ;
     private int fechaFinPenalizacion;
 
@@ -9,7 +9,7 @@ public class Usuario extends Persona {
 
     //CONSTRUCTOR
 public Usuario (String pDni, String pNombre, int pTtfn, String pEmail, String pContraseña,
-    boolean pPenalizacion, int pFechaInicioPen, int pFechaFinPen){
+    String pPenalizacion, int pFechaInicioPen, int pFechaFinPen){
     super(pDni,pNombre,pTtfn,pEmail,pContraseña);
     this.penalizacion = pPenalizacion;
     this.fechaInicioPenalizacion = pFechaInicioPen;
@@ -22,17 +22,17 @@ public Usuario (String pDni, String pNombre, int pTtfn, String pEmail, String pC
 
 public Usuario (){
     super();
-    this.penalizacion = false;
+    this.penalizacion = "no";
     this.fechaInicioPenalizacion = 00/00/0000;
     this.fechaFinPenalizacion = 00/00/0000;
 }
 
 ///GETTERS Y SETTERS
 
-public boolean getPenalizacion(){
+public String getPenalizacion(){
     return this.penalizacion;
 }
-public void setPenalizacion (boolean pen){
+public void setPenalizacion (String pen){
     this.penalizacion = pen;
 }
 
