@@ -26,7 +26,7 @@ Io.sop("***********************************************************************"
                 UsuarioCN.insertarUsuario();
                 break;
             case 2:
-               UsuarioCN.borrarUsuarioTabla(10); 
+               UsuarioCN.borrarUsuario();
                 break;
             case 3:
                 
@@ -39,8 +39,13 @@ Io.sop("***********************************************************************"
         }
     }
 
-
-
+    //Metodo para borrar usuario
+    public static void borrarUsuario(){
+        Connection conn = Io.getConexion();
+        borrarUsuarioConsultandoTabla(conn, 10, 1);
+        Io.cerrarConexion(conn);
+    }
+    
 
 
     ///Metodo para validar el email 
@@ -99,20 +104,20 @@ Io.sop("***********************************************************************"
         return cambios;
     }
    
- public static void consultaTablaDelete(Connection conn, int nRegPag, int nPag) {
+ public static void borrarUsuarioConsultandoTabla(Connection conn, int nRegPag, int nPag) {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        int offset,vTelefono;
-        String vDni,vNom,vEmail,sql,vPasword,vPen,vFechaIni,vFechaFin;;
+        int offset;
+        String vDni,vNom,vEmail,sql,vPasword,vPen,vFechaIni,vFechaFin,vTelefono;
         while (!salir) {
             offset = ( nPag -1)* nRegPag;
             sql = " select * from usuarios limit " +nRegPag+ " offset "+ offset + " ";
-            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("  ║                                         LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                                  ║");
-            Io.sop("╠════════════════╦════════════════════════╦══════════════╦══════════════════════════════╦════════════╦════════════════╦════════════════╦════════════════╣");
-            Io.sop("║ DNI         ║ NOMBRE                 ║ TELÉFONO     ║ EMAIL                        ║ PASSWORD   ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN      ║");
-            Io.sop("╚════════════════╩════════════════════════╩══════════════╩══════════════════════════════╩════════════╩════════════════╩════════════════╩════════════════╝");
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                                         LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                                   ║");
+            Io.sop("╠═════════╦════════════════════════╦══════════════════════════╦══════════════════════╦═════════════════╦════════════════╦════════════════╦════════════╣");
+            Io.sop("║ DNI     ║       NOMBRE           ║        EMAIL             ║        TELEFONO      ║     PASSWORD    ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN  ║");
+            Io.sop("╚═════════╩════════════════════════╩══════════════════════════╩══════════════════════╩═════════════════╩════════════════╩════════════════╩════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
@@ -121,20 +126,19 @@ Io.sop("***********************************************************************"
                     vDni= padl(vDni,10);
                     vNom = rs.getString("nombre");
                     vNom = padl ( vNom,20);// Para que quede bien en columna del mismo tamaño
-                    vTelefono = rs.getInt("telefono");
+                    vTelefono = rs.getString("telefono");
+                    vTelefono = padl(vTelefono,23);
                     vEmail = rs.getString("email");
-                    vEmail = padl(vEmail, 20);
+                    vEmail = padl(vEmail, 27);
                     vPasword = rs.getString("password");
-                    vPasword= padl(vPasword,5);
+                    vPasword= padl(vPasword,15);
                     vPen =rs.getString("penalizacion");
-                    vPen = padl(vPen,3);
-                    //vFechaIni = rs.getDate("fecha_inicio_penalizacion");
+                    vPen = padl(vPen,15);
                     vFechaIni =rs.getString("fecha_inicio_penalizacion");
+                    vFechaIni = padl(vFechaIni, 15);
                     vFechaFin = rs.getString("fecha_fin_penalizacion");
-                    //vFechaIni = padl(vFechaIni, 10);
-                    //vFechaFin = rs.getDate("fecha_fin_penalizacion");
-                    //vFechaFin = padl(vFechaFin,10);
-                    System.out.println( vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono+"| "+vEmail+" |"+vPasword+"|"
+                    vFechaFin = padl(vFechaFin,20);
+                    System.out.println( vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono+"| "+vPasword+" |"+vPen+"|"
                     +vFechaIni+"|"+vFechaFin);
                     
                 }
@@ -176,7 +180,7 @@ Io.sop("***********************************************************************"
     }
 
 
-
+//Metodo para borrar el dato
     public static boolean borrarDato(Connection conn,String vDni){//Borrar un campo en el que nos pasan el codigo
         Statement st;
         int borrados;
@@ -193,29 +197,7 @@ Io.sop("***********************************************************************"
         }
 
 
-
-
-
     
-    //BORRAR USUARIO
-    public static boolean BorrarUsuario(){   // Pedimos el dni por teclado que queremos borrar
-        Connection conn =Io.getConexion();
-        Statement st;
-        String vDni= Io.leerString("Dime el dni del usuario que deseas borrar : ");
-        int borrados;
-        String sql = "delete from usuarios where dni = '"+vDni+"'";
-        try{
-            st = conn.prepareStatement(sql);
-            borrados = st.executeUpdate(sql);
-            return borrados>0;
-    }
-        catch(SQLException e){
-            System.out.println("Problema al borrar: "+sql+e.getErrorCode()+" "+e.getMessage());
-            return false;
-    }
-    }
-
-
 ////USUARIO PAGINADO
 
 public static void consultarUsuarioPaginado (Connection conn,int nRegPag,int nPag){
@@ -303,7 +285,7 @@ public static String padl (String texto, int longitud){
 
 ////CONSULTAR TABLA
 
-public static void borrarUsuarioTabla (int totalRegistros){ //Visualizamos la tabla 
+/*public static void borrarUsuarioTabla (int totalRegistros){ //Visualizamos la tabla 
     Connection conn = Io.getConexion();
     Statement stm = null;
     ResultSet rs = null;//eso seria como apuntar al fichero se usa cuando quieres ver la informacion, no cuando quieres ejecutar algo
@@ -340,7 +322,7 @@ public static void borrarUsuarioTabla (int totalRegistros){ //Visualizamos la ta
         System.out.println("Usuario no se ha podido borrar");
     }
     menuUsuario();
-}
+}*/
 
 
 
@@ -356,43 +338,15 @@ public static void borrarUsuarioTabla (int totalRegistros){ //Visualizamos la ta
     Connection conn =Io.getConexion();    
 
 
-        Io.sop("***********************************************************************");
-        Io.sop("********************  GESTION DE USUARIOS  ****************");
-        Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
-        Io.sop("**************************   DE MUSKIZ  ************************************");
-        Io.sop("1. AGREGAR USUARIO");
-        Io.sop("2. BORRAR USUARIO");
-        Io.sop("3. MODIFICAR USUARIO");
-        Io.sop("4. SALIR");
-        int opcion = Io.leerInt("Selecciona una opción: ");
-        switch (opcion) {
-            case 1:
-                UsuarioCN.insertarUsuario();
-                break;
-            case 2:
-                UsuarioCN.consultaTablaDelete(conn, 10, 1);
-                break;
-            case 3:
-                
-                break;
-            case 4:
-            Io.sop("Saliendo...");
-                break;
-            default:
-                Io.sop("Opción no válida. Intenta otra vez.");
-        }
-
-    }
-
+        menuUsuario();
    
         
 
 
-    
-
 
    
     }
+}
 
 
 
