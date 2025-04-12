@@ -1,6 +1,7 @@
 package principal;
 
 import Io.*;
+import conexiones.AutorCN;
 import conexiones.UsuarioCN;
 
 public class main {
@@ -28,7 +29,7 @@ public class main {
                 // Llamar a la función de gestionar libros
                 break;
             case 3:
-                // Llamar a la función de gestionar autores
+                AutorCN.menuAutores();
                 break;
             case 4:
                 UsuarioCN.menuUsuario();
