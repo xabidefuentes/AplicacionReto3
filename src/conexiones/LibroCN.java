@@ -255,7 +255,7 @@ public class LibroCN {
                     break;
             }
         }
-        swisbnSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:");
+        swisbnSeleccionado = Io.leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:");
         ejecutarDelete(conn, swisbnSeleccionado);
         Io.sop("Libro con ISBN: " + swisbnSeleccionado + " eliminado correctamente");
         LibroCN.menuLibro();
