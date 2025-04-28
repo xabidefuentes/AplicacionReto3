@@ -30,10 +30,10 @@ public class LibroCN {
                     LibroCN.insertarLibro();
                     break;
                 case 2:
-                    LibroCN.consultaTablaDeleteLibro(conn, opcion, opcion);
+                    LibroCN.borrarLibro();
                     break;
                 case 3:
-                    /*LibroCN.modificarLibro();*/
+                    LibroCN.modificarLibro();
                     break;
                 case 4:
                 Io.sop("Saliendo...");
@@ -43,7 +43,19 @@ public class LibroCN {
             }
         }
 
-
+        //Metodo para borrar usuario
+        public static void borrarLibro(){
+            Connection conn = Io.getConexion();
+            consultaTablaDeleteLibro(conn, 10, 1);
+            Io.cerrarConexion(conn);
+        }
+    
+    
+        public static void modificarLibro(){
+            Connection conn = Io.getConexion();
+            modificarLibroConTabla(conn, 5, 1);
+            Io.cerrarConexion(conn);
+        }
     //INSERTAR LIBROS
 
     public static int insertarLibro(){
@@ -52,15 +64,15 @@ public class LibroCN {
         int ncambios = 0,vISBN,vNumcopias,vAnioPublicacion;
         String vTitulo,vGenero,vEditorial;
 
-        /*Date vAnioPublicacion;*/
+        
         System.out.println("Comenzamos a introducir los datos");
         vTitulo = Io.leerString("Dime el titulo del libro: ");
         vGenero = Io.leerString("Dime el genero del libro: ");
         vEditorial = Io.leerString("Dime la editorial del libro: ");
         vISBN = Io.leerInt("Dime el ISBN del libro: ");
         vNumcopias = Io.leerInt("Dime el número de copias del libro: ");
-        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro");     //////////////////////ARREGLARLO
-        String sql = "insert into libros (titulo,genero,editorial,isbn,numcopias) values ('"+vTitulo+"','"+vGenero+"','"+vEditorial+"','"+ vISBN+"','"+vNumcopias+"','"+vAnioPublicacion+"')";  /*,'"+vAnioPublicacion+"' */
+        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro:");     //////////////////////ARREGLARLO
+        String sql = "insert into libros (isbn,titulo,genero,editorial,ano) values ('"+vTitulo+"','"+vGenero+"','"+vEditorial+"','"+ vISBN+"','"+vNumcopias+"','"+vAnioPublicacion+"')";  
 
         //comprobar que no exista el libro
         do{
@@ -91,7 +103,7 @@ public class LibroCN {
 
     }
 
-    public static boolean borrarLibro(){
+    /*public static boolean borrarLibro(){
         Connection conn =Io.getConexion();
         Statement st;
         int vISBN= Io.leerInt("Dime el ISBN del libro que deseas borrar :");
@@ -108,12 +120,7 @@ public class LibroCN {
         }
         
     }
-
-
-    /*public static int modificarLibro(){
-
-    }*/
-
+*/
     public static void consultarLibroPaginado (Connection conn,int nRegPag,int nPag){
     /*Realizamos la consulta sql para mostrar todos los datos de la tabla, Se mostraran estudiante de 
      * 10 en 10 (nRegPag), los que correspondean a la pagina nPag
@@ -255,7 +262,7 @@ public class LibroCN {
                     break;
             }
         }
-        swisbnSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:");
+        swisbnSeleccionado = Io.leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:");
         ejecutarDelete(conn, swisbnSeleccionado);
         Io.sop("Libro con ISBN: " + swisbnSeleccionado + " eliminado correctamente");
         LibroCN.menuLibro();
@@ -286,10 +293,141 @@ public class LibroCN {
         }
         return letra;
     }
-
+    public static void modificarLibroConTabla(Connection conn, int nRegPag, int nPag) {
+        Statement stm = null;
+        ResultSet rs = null;
+        boolean salir = false;
+        int offset;
+        String vTitulo,vGenero,vEditorial,sql,vISBN,vAnioPublicacion;
+        while (!salir) {
+            offset = ( nPag -1)* nRegPag;
+            sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                         MODIFICACIÓN DE LIBROS  |  PÁGINA: " + nPag + "                      ║");
+            Io.sop("╠═══════╦════════════════╦══════════════════╦═════════════════════╦═════════════════╣");
+            Io.sop("║Titulo ║     Genero     ║      Editorial   ║    Año Publicacion  ║    ISBN         ║");
+            Io.sop("╚═══════╩════════════════╩══════════════════╩═════════════════════╩═════════════════╝");
+            try {
+                stm = conn.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                    vTitulo = rs.getString("titulo");
+                    vTitulo= pad2(vTitulo,40);
+                    vGenero = rs.getString("genero");
+                    vGenero = pad2 ( vGenero,20);
+                    vEditorial = rs.getString("editorial");
+                    vEditorial = pad2(vEditorial,30);
+                    vAnioPublicacion = rs.getString("ano");
+                    vAnioPublicacion = pad2(vAnioPublicacion, 27);
+                    vISBN = rs.getString("isbn");
+                    vISBN= pad2(vISBN,15);
+                    System.out.println( vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"| "+vISBN);
+                    
+                }
+    
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+            Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("Muevete por la tabla y selecciona el ISBN del libro que deseas modificar: ");
+            char opc = Io.leerCaracter();
+            switch (opc) {
+                case '+':
+                    nPag++;
+                    break;
+                case '-':
+                    if (nPag > 1) {
+                        nPag--;
+                    } else {
+                        nPag = 1;
+                    }
+                    break;
+                case 'x' | 'X':
+                    salir = true;
+                    break;
+                default:
+                    salir = true;
+                    break;
+            }
+        }
+         String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo isbn del libro:  ");
+         if (!Io.comprobarExistencia(conn, "libros", "isbn", vModificar)) {
+                Io.sop(" No existe ningún libro con ese isbn.");
+                return;
+            }
+            Io.sop("¿Qué campo del libro  deseas modificar?");
+            Io.sop("1. ISBN");
+            Io.sop("2. Titulo");
+            Io.sop("3. Genero");
+            Io.sop("4. Editorial");
+            Io.sop("5. Año Publicacion");
+            Io.sop("6. Terminar");
+    
+            char opc = Io.leerCaracter();
+            String campo = "", nuevoValor = "";
+    
+            switch (opc) {
+                case '1':
+                    campo = "ISBN";
+                    nuevoValor = Io.leerString("Introduce el nuevo ISBN del libro: ");
+                    break;
+                case '2':
+                    campo = "Titulo";
+                    nuevoValor = Io.leerString("Introduce el nuevo titulo del libro:");
+                    break;
+                case '3':
+                    campo = "Genero";
+                    nuevoValor =Io.leerString("Introduce el nuevo genero:");
+                    break;
+                case '4':
+                    campo = "Editorial";
+                    nuevoValor = Io.leerString("Introduce la nueva editorial: ");
+                    break;
+                case '5':
+                    campo = "Año Publicacion";
+                    nuevoValor = Io.leerString("Introduce el nuevo año de publicacion: ");
+                    break;
+                case '6':
+                    salir = true;
+                    break;
+                default:
+                    Io.sop("Opción no válida.");
+            }
+    
+            if (!campo.equals("")) {
+                if (ejecutarUpdateCampo(conn, vModificar, campo, nuevoValor)) {
+                    Io.sop(" Libro  modificado correctamente.");
+                } else {
+                    Io.sop(" Error al modificar el libro.");
+                }
+            }
+            LibroCN.menuLibro();
+            
+        }
+        public static boolean ejecutarUpdateCampo(Connection conn, String IsbnAntiguo, String campo, String nuevoValor) {
+            String sql = "UPDATE libros SET " + campo + " = '" + nuevoValor + "' WHERE dni = '" + IsbnAntiguo + "'";
+            try {
+                Statement stmt = conn.createStatement();
+                stmt.executeUpdate(sql);
+            } catch (SQLException e) {
+                Io.sop(" Error con la query: " + sql);
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+       /*  public static void main(String[] args) {
+    
+            menuLibro();
+        
+        
+        }
+        */
     ////
     /// 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         Io.sop("***********************************************************************");
             Io.sop("********************  GESTION DE LIBROS  ****************");
             Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
@@ -304,10 +442,10 @@ public class LibroCN {
                     LibroCN.insertarLibro();
                     break;
                 case 2:
-                    LibroCN.consultaTablaDeleteLibro(conn, 10,1);
+                    LibroCN.borrarLibro();
                     break;
                 case 3:
-                    
+                    LibroCN.modificarLibro();
                     break;
                 case 4:
                 Io.sop("Saliendo...");
@@ -317,5 +455,5 @@ public class LibroCN {
             }
         }
 
-       */
+       
 }
