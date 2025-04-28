@@ -388,7 +388,7 @@ public static void modificarUsuarioConTabla(Connection conn, int nRegPag, int nP
         switch (opc) {
             case '1':
                 campo = "dni";
-                nuevoValor = Io.leerString("Introduce el nuevo dni del usuario: ");
+                nuevoValor = Io.ejecutarValidarDni(conn);
                 break;
             case '2':
                 campo = "nombre";
