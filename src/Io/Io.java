@@ -40,6 +40,40 @@ public static Connection getConexion(){
         return true;
     }
 
+//Metodo para validar dni
+    public static boolean validarDni(String dni) {
+        if (dni == null || dni.length() != 9) {
+            return false;
+        }
+        String numeroStr = dni.substring(0, 8);
+        char letraIntroducida = dni.charAt(8);
+            if (!numeroStr.matches("\\d{8}")) {
+                return false;
+        }
+        int numero = Integer.parseInt(numeroStr);
+        String letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+        char letraCorrecta = letras.charAt(numero % 23);
+            return letraIntroducida == letraCorrecta;
+    }
+
+//Metodo para ejecutar la validacion del dni
+
+    public static String ejecutarValidarDni(Connection conn) {
+        String dni;
+        boolean valido = false;
+        do {
+            dni = leerString("Introduce el DNI del usuario: ").toUpperCase(); // Pedimos y pasamos a mayúsculas
+            if (!validarDni(dni)) {
+                sop("Formato de DNI incorrecto. Debe tener 8 números y una letra correcta.");
+            } else if (comprobarExistencia(conn, "usuarios", "dni", dni)) {
+                sop("El DNI ya existe en la base de datos. Introduce uno diferente.");
+            } else {
+                valido = true; // Si formato correcto y no existe, lo damos como válido
+            }
+        } while (!valido);
+        return dni;
+    }
+
     public static boolean comprobarExistencia(Connection conn, String tabla, String columna, String valor) {
         String sql = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = '" + valor + "'";
         try (Statement stmt = conn.createStatement(); var rs = stmt.executeQuery(sql)) {
