@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
+import javax.naming.NoPermissionException;
+
 import Io.*;
 import conexiones.*;
 
@@ -61,7 +63,7 @@ public class LibroCN {
     public static int insertarLibro(){
         Connection conn =Io.getConexion();
 
-        int ncambios = 0,vISBN,vNumcopias,vAnioPublicacion;
+        int ncambios = 0,vISBN,vAnioPublicacion;
         String vTitulo,vGenero,vEditorial;
 
         
@@ -70,11 +72,10 @@ public class LibroCN {
         vGenero = Io.leerString("Dime el genero del libro: ");
         vEditorial = Io.leerString("Dime la editorial del libro: ");
         vISBN = Io.leerInt("Dime el ISBN del libro: ");
-        vNumcopias = Io.leerInt("Dime el número de copias del libro: ");
         vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro:");     //////////////////////ARREGLARLO
-        String sql = "insert into libros (isbn,titulo,genero,editorial,ano) values ('"+vTitulo+"','"+vGenero+"','"+vEditorial+"','"+ vISBN+"','"+vNumcopias+"','"+vAnioPublicacion+"')";  
+        String sql = "insert into libros (isbn,titulo,genero,editorial,ano,fk_id_autor) values ('"+vISBN+"','"+vTitulo+"','"+vGenero+"','"+ vEditorial+"','"+vAnioPublicacion+"','" + (int) (Math.random() * 1000)+ "')";  
 
-        //comprobar que no exista el libro
+        //comprobar que no exista el libro ESTO LO TENGO QUE COMPROBAR PARA QUE NO LO PIDE CONTINUAMENTE
         do{
             vISBN = Io.leerInt("Dime el ISBN del libro:");
             if (Io.comprobarExistenciaInt(conn, "libros", "isbn", vISBN)) {
@@ -130,12 +131,17 @@ public class LibroCN {
      * al pulsar ESC saldre de la consulta */
     Statement stm = null;
     ResultSet rs = null;
-    int offset,cont,vISBN,vAnioPublicacion;
+    int offset,cont,vISBN,vAnioPublicacion,vidAutor;
     String vTitulo,vGenero,vEditorial,sql;
     boolean salir = false;
     while ( ! salir){//Control de las teclas +, -, ESC
         offset = ( nPag -1)* nRegPag;
         sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
+            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + nPag + "                      ║");
+            Io.sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║ISBN ║     Titulo     ║      Genero      ║AÑO PUBLICACION║   Editorial   ║    ID AUTOR   ║ ");
+            Io.sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
         rs = ejecutarSelect (conn,sql);
         System.out.println(" TABLA DE libros Pag : "+ nPag);
         System.out.println("-------------------------------");
@@ -150,13 +156,16 @@ public class LibroCN {
                 vEditorial = pad2 ( vGenero,50);
                 vAnioPublicacion = rs.getInt("anioPublicacion");
                 vISBN = rs.getInt("ISBN");
-                System.out.println(pad2(cont++ +".-",5)+ vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN);
+                vidAutor = rs.getInt("ID Autor");
+                System.out.println(pad2(cont++ +".-",5)+ vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 cont++;
             }   
         }catch (SQLException  e){
             System.out.println("Problema al ejecutar sql "+ sql+ e.getErrorCode()+ " "+e.getMessage());
         }
-        System.out.println("[+] Pag.Sig, [-] Pag. Ant, [x] Abandonar, [Num] seleccionar");
+        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+        Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
         int opc = Io.leerInt("Elige una opcion");
         switch (opc){
             case '+' : nPag++;
@@ -201,21 +210,20 @@ public class LibroCN {
         }
     }
 
-    public static void consultaTablaDeleteLibro (Connection conn, int totalRegistros, int pagina) {
+    public static void consultaTablaDeleteLibro (Connection conn, int nRegpag, int npag) {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        String Titulo = "", ISBN = "", Genero = "", Aniopublicacion = "", editorial = "", swisbnSeleccionado = null;
-        int offset, posicion = 0;
-        String[] aISBN = new String[totalRegistros];
+        int offset,vISBN,vAnioPublicacion,vidAutor;
+        String vTitulo,vGenero,vEditorial,sql;
         while (!salir) {
-            offset = (pagina - 1) * totalRegistros;
-            String sql = "SELECT * FROM libros LIMIT " + totalRegistros + " OFFSET " + offset;
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════╗");
-            Io.sop(  "║                    ELIMINAR LIBROS  |  PÁGINA: " + pagina + "                        ║");
-            Io.sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╣");
-            Io.sop("║ISBN ║     Titulo     ║      Genero      ║AÑO PUBLICACION║   Editorial   ║");
-            Io.sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╝");
+            offset = (npag - 1) * nRegpag;
+            sql = "SELECT * FROM libros LIMIT " + nRegpag + " OFFSET " + offset;
+            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + nRegpag + "                      ║");
+            Io.sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║ISBN ║     Titulo     ║      Genero      ║AÑO PUBLICACION║   Editorial   ║    ID AUTOR   ║ ");
+            Io.sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
 
 
 
@@ -225,14 +233,16 @@ public class LibroCN {
 
                 int cont = 0; // Aquí empieza desde el número correcto
                 while (rs.next()) {
-                    ISBN = pad2(rs.getString("ISBN"), 20);
-                    Titulo = pad2(rs.getString("titulo"), 50);
-                    Genero = pad2(rs.getString("genero"), 50);
-                    editorial = pad2(rs.getString("editorial"), 50);
-                    Aniopublicacion = pad2(rs.getString("aniopublicacion"), 13);
-                    aISBN[cont] = ISBN;
-                    Io.sop(ISBN + " | " +Titulo + " | " + Genero + " | " + Aniopublicacion);
-                    cont++;
+                    vTitulo = rs.getString("titulo");
+                    vTitulo= pad2(vTitulo,50);
+                    vGenero = rs.getString("genero");
+                    vGenero = pad2 ( vGenero,50);
+                    vEditorial = rs.getString("editorial");
+                    vEditorial = pad2 ( vGenero,50);
+                    vAnioPublicacion = rs.getInt("ano");
+                    vISBN = rs.getInt("ISBN");
+                    vidAutor = rs.getInt("fk_id_autor");
+                    System.out.println(pad2(cont++ +".-",5)+ vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 }
 
             } catch (SQLException e) {
@@ -241,17 +251,17 @@ public class LibroCN {
             Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
             Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
             Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
-            Io.sop("Muevete por la tabla y selecciona el ID del préstamo que deseas eliminar: ");
+            Io.sop("Muevete por la tabla y selecciona el isbn del libro que deseas eliminar: ");
             char opc = leerCaracter();
             switch (opc) {
                 case '+':
-                    pagina++;
+                    npag++;
                     break;
                 case '-':
-                    if (pagina > 1) {
-                        pagina--;
+                    if (npag > 1) {
+                        npag--;
                     } else {
-                        pagina = 1;
+                        npag = 1;
                     }
                     break;
                 case 'x' | 'X':
@@ -262,10 +272,28 @@ public class LibroCN {
                     break;
             }
         }
-        swisbnSeleccionado = Io.leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:");
-        ejecutarDelete(conn, swisbnSeleccionado);
-        Io.sop("Libro con ISBN: " + swisbnSeleccionado + " eliminado correctamente");
+        int swisbnSeleccionado = Io.leerInt("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:") ;
+        if (LibroCN.borrarISBN(conn,swisbnSeleccionado)){
+            System.out.println("Libro borrado correctamente");
+        }else{
+            System.out.println("El libro no se ha podido borrar");
+        }
         LibroCN.menuLibro();
+    }
+    //Metodo para borrar el isbn
+    public static boolean borrarISBN(Connection conn,int swisbnSeleccionado){//Borrar un campo en el que nos pasan el codigo
+        Statement st;
+        int borrados;
+        String sql = "delete from libros where isbn = '"+swisbnSeleccionado+"'";
+        try{
+            st = conn.prepareStatement(sql);
+            borrados = st.executeUpdate(sql);
+            return borrados>0;
+        }
+        catch(SQLException e){
+            System.out.println("Problema al borrar: "+sql+e.getErrorCode()+" "+e.getMessage());
+            return false;
+        }
     }
 
     public static boolean ejecutarDelete (Connection conn, String ISBN) {
