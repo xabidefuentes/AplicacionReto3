@@ -50,7 +50,7 @@ public class LibroCN {
     
         public static void modificarLibro(){
             Connection conn = Io.getConexion();
-            modificarLibroConTabla(conn, 5, 1);
+            modificarLibroConTabla(conn, 10, 1);
             Io.cerrarConexion(conn);
         }
     //INSERTAR LIBROS
@@ -112,11 +112,11 @@ public class LibroCN {
     while ( ! salir){//Control de las teclas +, -, ESC
         offset = ( nPag -1)* nRegPag;
         sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + nPag + "                      ║");
-            Io.sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
-            Io.sop("║ISBN ║     Titulo     ║      Genero      ║AÑO PUBLICACION║   Editorial   ║    ID AUTOR   ║ ");
-            Io.sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
+        Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + nPag + "                                 ║");
+        Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+        Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+        Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
         rs = ejecutarSelect (conn,sql);
         System.out.println(" TABLA DE libros Pag : "+ nPag);
         System.out.println("-------------------------------");
@@ -193,11 +193,11 @@ public class LibroCN {
         while (!salir) {
             offset = (npag - 1) * nRegpag;
             sql = "SELECT * FROM libros LIMIT " + nRegpag + " OFFSET " + offset;
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + npag + "                      ║");
-            Io.sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
-            Io.sop("║ISBN ║     Titulo     ║      Genero      ║AÑO PUBLICACION║   Editorial   ║    ID AUTOR   ║ ");
-            Io.sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + npag + "                                 ║");
+            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
 
 
 
@@ -206,13 +206,13 @@ public class LibroCN {
                 rs = stm.executeQuery(sql);
                 while (rs.next()) {
                     vTitulo = rs.getString("titulo");
-                    vTitulo= pad2(vTitulo,50);
+                    vTitulo= pad2(vTitulo,30);
                     vGenero = rs.getString("genero");
-                    vGenero = pad2 ( vGenero,50);
+                    vGenero = pad2 ( vGenero,20);
                     vEditorial = rs.getString("editorial");
-                    vEditorial = pad2 ( vGenero,50);
+                    vEditorial = pad2 ( vEditorial,20);
                     vAnioPublicacion = rs.getInt("ano");
-                    vISBN = rs.getInt("ISBN");
+                    vISBN = rs.getInt("isbn");
                     vidAutor = rs.getInt("fk_id_autor");
                     System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 }
@@ -289,11 +289,11 @@ public class LibroCN {
         while (!salir) {
             offset = ( nPag -1)* nRegPag;
             sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop(  "║                            MODIFICACION LIBROS  |  PÁGINA: " + nPag + "                      ║");
-            Io.sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
-            Io.sop("║ISBN ║     Titulo     ║      Genero      ║AÑO PUBLICACION║   Editorial   ║    ID AUTOR   ║ ");
-            Io.sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                            Modificacion LIBROS  |  PÁGINA: " + nPag + "                                 ║");
+            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
