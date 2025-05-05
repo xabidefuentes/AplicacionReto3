@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Scanner;
 import principal.Prestamo;
@@ -40,6 +42,25 @@ public static Connection getConexion(){
         return true;
     }
 
+    // METODO PARA VALIDAR FECHA
+    public static LocalDate parsearFecha(String texto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            return LocalDate.parse(texto, formatter);
+        } catch (DateTimeParseException e) {
+            System.out.println("Error: debes introducir una fecha completa en formato yyyy-MM-dd (por ejemplo, 2025-04-30).");
+            return null;
+        }
+    }
+    public static boolean esFechaValida(String texto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            LocalDate.parse(texto, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 //Metodo para validar dni
     public static boolean validarDni(String dni) {
         if (dni == null || dni.length() != 9) {
@@ -68,11 +89,14 @@ public static Connection getConexion(){
             } else if (comprobarExistencia(conn, "usuarios", "dni", dni)) {
                 sop("El DNI ya existe en la base de datos. Introduce uno diferente.");
             } else {
-                valido = true; // Si formato correcto y no existe, lo damos como válido
+                valido = true; // Si el formato es correcto y no existe, lo damos como válido
             }
         } while (!valido);
         return dni;
     }
+
+
+   
 
     public static boolean comprobarExistencia(Connection conn, String tabla, String columna, String valor) {
         String sql = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = '" + valor + "'";

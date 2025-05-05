@@ -10,37 +10,49 @@ public class PrestamoCN {
     public static void añadirPrestamo() {
         Connection conn = getConexion();
         String dni;
-        String idEjemplar;
+        String idEjemplar = "";
         String dniEmpleado;
 
         // Comprobar si el usuario existe
         do {
             dni = leerString("Ingresa el DNI del usuario: ");
+            dni = dni.toUpperCase();
             if (!comprobarExistencia(conn, "usuarios", "dni", dni)) {
                 sop("❌ No existe ningún usuario con ese DNI.");
             }
+            if (!validarDni(dni)) {
+                sop("❌ DNI inválido. Debe tener 8 dígitos y una letra al final.");
+            }
         } while (!comprobarExistencia(conn, "usuarios", "dni", dni));
 
-        LocalDate fechaPrestamo = leerDate("Ingresa la fecha de préstamo (YYYY-MM-DD): ");
+        String fechaPrestamo;
+        do {
+            fechaPrestamo = leerString("Ingresa la fecha de préstamo (YYYY-MM-DD): ");
+            if (!esFechaValida(fechaPrestamo)) {
+                sop("❌ Fecha inválida. Debe ser en el formato YYYY-MM-DD.");
+            }
+        } while (!esFechaValida(fechaPrestamo));
 
         // Comprobar si el ejemplar existe
         String nombreLibro;
         do {
             nombreLibro = leerString("Ingresa el nombre del libro: ");
-            // Buscar el ID del ejemplar del libro por su nombre
+            if (!comprobarExistencia(conn, "libros", "titulo", nombreLibro)) {
+                sop("❌ No existe ningún libro con ese título.");
+                idEjemplar = null;
+                continue;
+            }
             idEjemplar = obtenerIdEjemplarPorNombre(conn, nombreLibro);
-
             if (idEjemplar == null) {
-                sop("❌ No existe un ejemplar de ese libro o el libro no está disponible.");
+                sop("❌ No hay ejemplares disponibles para ese libro.");
                 continue;
+            }
+            if (buscarPrestamoPorEjemplar(conn, idEjemplar) > 0) {
+                sop("❌ El ejemplar ya está prestado. Elige otro.");
+                idEjemplar = null;
             }
 
-            // Comprobar si el ejemplar está prestado
-            if (buscarPrestamoPorEjemplar(conn, idEjemplar) != 0) {
-                sop("❌ El libro ya está prestado. Elige otro.");
-                continue;
-            }
-        } while (idEjemplar == null || buscarPrestamoPorEjemplar(conn, idEjemplar) != 0);
+        } while (idEjemplar == null);
 
         // Comprobar si el empleado existe
         do {
@@ -51,16 +63,18 @@ public class PrestamoCN {
         } while (!comprobarExistencia(conn, "empleados", "dni", dniEmpleado));
 
         // Comprobar si el ejemplar ya está prestado
-        if (ejecutarInsert(conn, dni, fechaPrestamo, idEjemplar, dniEmpleado)) {
+        if (ejecutarInsert(conn, dni.toUpperCase(), parsearFecha(fechaPrestamo), idEjemplar, dniEmpleado.toUpperCase())) {
             sop("✅ Préstamo añadido correctamente.");
+            cambiarEstadoEjemplar(conn, idEjemplar);
         } else {
             sop("❌ Error al añadir el préstamo.");
         }
         Prestamo.menuPrestamo();
     }
+
     public static boolean ejecutarInsert(Connection conn, String dni, LocalDate fechaPrestamo, String idEjemplar, String dniEmpleado) {
         String sql = "INSERT INTO prestamos (id_prestamo, fecha_prestamo, fecha_devolucion, fk_dni_usuario, fk_id_ejemplar, fk_dni_empleado) " +
-                "VALUES ('" + (int) (Math.random() * 1000) + "', '" + fechaPrestamo + "', '1000-10-10', '" + dni + "', '" + idEjemplar + "', '" + dniEmpleado + "')";
+                "VALUES ('" +  generarId() + "', '" + fechaPrestamo + "', '1000-10-10', '" + dni + "', '" + idEjemplar + "', '" + dniEmpleado + "')";
         try {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql);
@@ -71,6 +85,26 @@ public class PrestamoCN {
             return false;
         }
         return true;
+    }
+
+    public static int generarId() {
+        Connection conn = getConexion();
+        int id = 1;
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs;
+            while (true) {
+                String sql = "SELECT COUNT(*) FROM prestamos WHERE id_prestamo = " + id;
+                rs = stmt.executeQuery(sql);
+                if (rs.next() && rs.getInt(1) == 0) {
+                    return id;
+                }
+                id++;
+            }
+        } catch (SQLException e) {
+            sop("⚠️ Error al generar ID: " + e.getMessage());
+            return -1;
+        }
     }
     public static void borrarPrestamo(){
         Connection conn = getConexion();
@@ -109,39 +143,45 @@ public class PrestamoCN {
     }
 
     private static String obtenerIdEjemplarPorNombre(Connection conn, String nombreLibro) {
-        // Corregir la consulta para obtener el ID del ejemplar mediante el título del libro
-        String query = "SELECT id_ejemplar FROM ejemplares WHERE fk_isbn = (SELECT isbn FROM libros WHERE titulo = ?)";
-
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, nombreLibro); // Establecemos el título del libro
-            ResultSet rs = stmt.executeQuery();
-
+        String query = "SELECT id_ejemplar FROM ejemplares WHERE fk_isbn = " +
+                "(SELECT isbn FROM libros WHERE titulo = '" + nombreLibro + "') AND estado = 'DISPONIBLE'";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
             if (rs.next()) {
-                return rs.getString("id_ejemplar"); // Devuelve el id del ejemplar
+                String id = rs.getString("id_ejemplar");
+                return (id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error SQL: " + e.getMessage());
         }
-        return null; // Si no se encuentra ningún ejemplar
+        return null;
     }
 
     private static int buscarPrestamoPorEjemplar(Connection conn, String idEjemplar) {
-        // Verifica si el ejemplar ya está prestado (si existe un préstamo activo)
-        String query = "SELECT COUNT(*) FROM prestamos WHERE fk_id_ejemplar = ? AND fecha_devolucion IS NULL";
-
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, idEjemplar); // Establecemos el id del ejemplar
-            ResultSet rs = stmt.executeQuery();
-
+        String query = "SELECT COUNT(*) FROM prestamos WHERE fk_id_ejemplar = " + idEjemplar + " AND fecha_devolucion IS NULL";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
             if (rs.next()) {
-                return rs.getInt(1); // Devuelve la cantidad de préstamos activos para el ejemplar
+                return rs.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error SQL: " + e.getMessage());
         }
-        return 0; // Si no hay préstamos activos
+        return 0;
     }
 
+    private static void cambiarEstadoEjemplar (Connection conn, String idEjemplar) {
+        String sql = "UPDATE ejemplares SET estado = 'PRESTADO' WHERE id_ejemplar = '" + idEjemplar + "'";
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            sop("❌ Error al cambiar el estado del ejemplar: " + sql);
+            e.printStackTrace();
+        }
+    }
     public static void consultaTablaPrestamo (Connection conn, int totalRegistros, int pagina) {
         Statement stm = null;
         ResultSet rs = null;
@@ -197,6 +237,7 @@ public class PrestamoCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    Prestamo.menuPrestamo();
                     break;
                 default:
                     salir = true;
@@ -291,14 +332,10 @@ public class PrestamoCN {
             sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦══════════════╣");
             sop("║  ID ║ FECHA PRÉSTAMO ║ FECHA DEVOLUCIÓN ║  DNI USUARIO  ║  ID EJEMPLAR  ║ DNI EMPLEADO ║");
             sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩══════════════╝");
-
-
-
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
-
-                int cont = 0; // Aquí empieza desde el número correcto
+                int cont = 0;
                 while (rs.next()) {
                     idPrestamo = PADL(rs.getString("id_prestamo"), 5);
                     FechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
@@ -317,7 +354,7 @@ public class PrestamoCN {
             sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
             sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
             sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
-            Io.sop("Muevete por la tabla y selecciona el ID del préstamo que deseas eliminar: ");
+            sop("Muevete por la tabla y selecciona el ID del préstamo que deseas eliminar: ");
             char opc = leerCaracter();
             switch (opc) {
                 case '+':
@@ -332,6 +369,7 @@ public class PrestamoCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    Prestamo.menuPrestamo();
                     break;
                 default:
                     salir = true;
@@ -339,6 +377,10 @@ public class PrestamoCN {
             }
         }
         swIdSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ID del préstamo: ");
+        if (!comprobarExistencia(conn, "prestamos", "id_prestamo", swIdSeleccionado)) {
+            sop("❌ No existe ningún préstamo con ese ID.");
+            consultaTablaDelete(conn, 5, 1);
+        }
         ejecutarDelete(conn, swIdSeleccionado);
         sop("✅ Préstamo con ID: " + swIdSeleccionado + " eliminado correctamente.");
         Prestamo.menuPrestamo();
