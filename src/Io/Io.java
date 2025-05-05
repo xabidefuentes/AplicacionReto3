@@ -68,11 +68,14 @@ public static Connection getConexion(){
             } else if (comprobarExistencia(conn, "usuarios", "dni", dni)) {
                 sop("El DNI ya existe en la base de datos. Introduce uno diferente.");
             } else {
-                valido = true; // Si formato correcto y no existe, lo damos como válido
+                valido = true; // Si el formato es correcto y no existe, lo damos como válido
             }
         } while (!valido);
         return dni;
     }
+
+
+   
 
     public static boolean comprobarExistencia(Connection conn, String tabla, String columna, String valor) {
         String sql = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = '" + valor + "'";
