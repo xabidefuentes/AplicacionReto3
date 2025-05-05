@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Scanner;
 import principal.Prestamo;
@@ -40,6 +42,25 @@ public static Connection getConexion(){
         return true;
     }
 
+    // METODO PARA VALIDAR FECHA
+    public static LocalDate parsearFecha(String texto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            return LocalDate.parse(texto, formatter);
+        } catch (DateTimeParseException e) {
+            System.out.println("Error: debes introducir una fecha completa en formato yyyy-MM-dd (por ejemplo, 2025-04-30).");
+            return null;
+        }
+    }
+    public static boolean esFechaValida(String texto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            LocalDate.parse(texto, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 //Metodo para validar dni
     public static boolean validarDni(String dni) {
         if (dni == null || dni.length() != 9) {

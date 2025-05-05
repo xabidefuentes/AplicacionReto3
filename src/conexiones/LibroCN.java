@@ -9,10 +9,9 @@ import java.util.Scanner;
 
 import Io.*;
 import conexiones.*;
+import principal.Libro;
 
 public class LibroCN {
- private static final Connection conn = null;
-
     //FUNCIONES
     //Menu usuario
     public static void menuLibro(){
@@ -30,10 +29,10 @@ public class LibroCN {
                     LibroCN.insertarLibro();
                     break;
                 case 2:
-                    LibroCN.consultaTablaDeleteLibro(conn, opcion, opcion);
+                    LibroCN.borrarLibro();
                     break;
                 case 3:
-                    /*LibroCN.modificarLibro();*/
+                    LibroCN.modificarLibro();
                     break;
                 case 4:
                 Io.sop("Saliendo...");
@@ -43,41 +42,64 @@ public class LibroCN {
             }
         }
 
-
+        public static void borrarLibro(){
+            Connection conn = Io.getConexion();
+            consultaTablaDeleteLibro(conn, 10, 1);
+            Io.cerrarConexion(conn);
+        }
+    
+    
+        public static void modificarLibro(){
+            Connection conn = Io.getConexion();
+            modificarLibroConTabla(conn, 10, 1);
+            Io.cerrarConexion(conn);
+        }
     //INSERTAR LIBROS
 
     public static int insertarLibro(){
         Connection conn =Io.getConexion();
 
-        int ncambios = 0,vISBN,vNumcopias,vAnioPublicacion;
+        int ncambios = 0,vISBN,vAnioPublicacion,numEjemplares=0;
         String vTitulo,vGenero,vEditorial;
 
-        /*Date vAnioPublicacion;*/
+        
         System.out.println("Comenzamos a introducir los datos");
         vTitulo = Io.leerString("Dime el titulo del libro: ");
         vGenero = Io.leerString("Dime el genero del libro: ");
         vEditorial = Io.leerString("Dime la editorial del libro: ");
-        vISBN = Io.leerInt("Dime el ISBN del libro: ");
-        vNumcopias = Io.leerInt("Dime el número de copias del libro: ");
-        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro");     //////////////////////ARREGLARLO
-        String sql = "insert into libros (titulo,genero,editorial,isbn,numcopias) values ('"+vTitulo+"','"+vGenero+"','"+vEditorial+"','"+ vISBN+"','"+vNumcopias+"','"+vAnioPublicacion+"')";  /*,'"+vAnioPublicacion+"' */
-
-        //comprobar que no exista el libro
         do{
             vISBN = Io.leerInt("Dime el ISBN del libro:");
             if (Io.comprobarExistenciaInt(conn, "libros", "isbn", vISBN)) {
                 Io.sop("El libro ya existe, vuelve a introducirlo");
             }
         } while (Io.comprobarExistenciaInt(conn, "libros", "isbn", vISBN));
+        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro:");   
+        numEjemplares = Io.leerInt("¿Cuántos ejemplares tiene este libro?: "); 
+        String sql = "insert into libros (isbn,titulo,genero,editorial,ano,fk_id_autor) values ('"+vISBN+"','"+vTitulo+"','"+vGenero+"','"+ vEditorial+"','"+vAnioPublicacion+"','" + (int) (Math.random() * 10)+ "')";  
 
 
         try{
             Statement st = conn.createStatement();   
             ncambios = st.executeUpdate(sql);
-            if (ncambios == 0) {
-                System.out.println("No se ha añadido el registro");
+            if (ncambios > 0) {
+                System.out.println("Libro registrado correctamente");
+    
+                int insertados = 0;
+                while (insertados < numEjemplares) {
+                    int idAleatorio = (int) (Math.random() * 10); 
+    
+                    // Comprobamos si ya existe ese id
+                    if (!Io.comprobarExistenciaInt(conn, "ejemplares", "id_ejemplar", idAleatorio)) {
+                        String sqlEjemplar = "INSERT INTO ejemplares (id_ejemplar, estado, fk_isbn) " +
+                                             "VALUES (" + idAleatorio + ", 'DISPONIBLE', '" + vISBN + "')";
+                        st.executeUpdate(sqlEjemplar);
+                        insertados++;
+                    }
+                }
+    
+                System.out.println(numEjemplares + " ejemplares añadidos correctamente.");
             } else {
-                System.out.println("Registro añadido");
+                System.out.println("No se ha añadido el libro.");
             }
         }
         catch(SQLException e){
@@ -91,28 +113,6 @@ public class LibroCN {
 
     }
 
-    public static boolean borrarLibro(){
-        Connection conn =Io.getConexion();
-        Statement st;
-        int vISBN= Io.leerInt("Dime el ISBN del libro que deseas borrar :");
-        int borrados;
-        String sql = "delete from libros where isbn = '"+vISBN+"'";
-        try{
-            st = conn.prepareStatement(sql);
-            borrados = st.executeUpdate(sql);
-            return borrados>0;
-        }
-        catch(SQLException e){
-            System.out.println("Problema al borrar: "+sql+e.getErrorCode()+" "+e.getMessage());
-            return false;
-        }
-        
-    }
-
-
-    /*public static int modificarLibro(){
-
-    }*/
 
     public static void consultarLibroPaginado (Connection conn,int nRegPag,int nPag){
     /*Realizamos la consulta sql para mostrar todos los datos de la tabla, Se mostraran estudiante de 
@@ -123,12 +123,17 @@ public class LibroCN {
      * al pulsar ESC saldre de la consulta */
     Statement stm = null;
     ResultSet rs = null;
-    int offset,cont,vISBN,vAnioPublicacion;
+    int offset,cont,vISBN,vAnioPublicacion,vidAutor;
     String vTitulo,vGenero,vEditorial,sql;
     boolean salir = false;
     while ( ! salir){//Control de las teclas +, -, ESC
         offset = ( nPag -1)* nRegPag;
         sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
+        Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + nPag + "                                 ║");
+        Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+        Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+        Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
         rs = ejecutarSelect (conn,sql);
         System.out.println(" TABLA DE libros Pag : "+ nPag);
         System.out.println("-------------------------------");
@@ -143,13 +148,16 @@ public class LibroCN {
                 vEditorial = pad2 ( vGenero,50);
                 vAnioPublicacion = rs.getInt("anioPublicacion");
                 vISBN = rs.getInt("ISBN");
-                System.out.println(pad2(cont++ +".-",5)+ vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN);
+                vidAutor = rs.getInt("ID Autor");
+                System.out.println(pad2(cont++ +".-",5)+ vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 cont++;
             }   
         }catch (SQLException  e){
             System.out.println("Problema al ejecutar sql "+ sql+ e.getErrorCode()+ " "+e.getMessage());
         }
-        System.out.println("[+] Pag.Sig, [-] Pag. Ant, [x] Abandonar, [Num] seleccionar");
+        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+        Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
         int opc = Io.leerInt("Elige una opcion");
         switch (opc){
             case '+' : nPag++;
@@ -160,6 +168,7 @@ public class LibroCN {
                 }
                 break;
             case 'x' : salir=true;
+            LibroCN.menuLibro();
                 break;
         }
     }
@@ -181,7 +190,6 @@ public class LibroCN {
         return (null);
     }
 
-    //Este metodo sirve para que quede todo en columna ( visualmente mas bonito y ordenado)
 
     public static String pad2 (String texto, int longitud){
         if( texto.length() >longitud){
@@ -194,38 +202,37 @@ public class LibroCN {
         }
     }
 
-    public static void consultaTablaDeleteLibro (Connection conn, int totalRegistros, int pagina) {
+    public static void consultaTablaDeleteLibro (Connection conn, int nRegpag, int npag) {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        String Titulo = "", ISBN = "", Genero = "", Aniopublicacion = "", editorial = "", swisbnSeleccionado = null;
-        int offset, posicion = 0;
-        String[] aISBN = new String[totalRegistros];
+        int offset,vISBN,vAnioPublicacion,vidAutor;
+        String vTitulo,vGenero,vEditorial,sql;
         while (!salir) {
-            offset = (pagina - 1) * totalRegistros;
-            String sql = "SELECT * FROM libros LIMIT " + totalRegistros + " OFFSET " + offset;
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════╗");
-            Io.sop(  "║                    ELIMINAR LIBROS  |  PÁGINA: " + pagina + "                        ║");
-            Io.sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╣");
-            Io.sop("║ISBN ║     Titulo     ║      Genero      ║AÑO PUBLICACION║   Editorial   ║");
-            Io.sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╝");
+            offset = (npag - 1) * nRegpag;
+            sql = "SELECT * FROM libros LIMIT " + nRegpag + " OFFSET " + offset;
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + npag + "                                 ║");
+            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
 
 
 
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
-
-                int cont = 0; // Aquí empieza desde el número correcto
                 while (rs.next()) {
-                    ISBN = pad2(rs.getString("ISBN"), 20);
-                    Titulo = pad2(rs.getString("titulo"), 50);
-                    Genero = pad2(rs.getString("genero"), 50);
-                    editorial = pad2(rs.getString("editorial"), 50);
-                    Aniopublicacion = pad2(rs.getString("aniopublicacion"), 13);
-                    aISBN[cont] = ISBN;
-                    Io.sop(ISBN + " | " +Titulo + " | " + Genero + " | " + Aniopublicacion);
-                    cont++;
+                    vTitulo = rs.getString("titulo");
+                    vTitulo= pad2(vTitulo,30);
+                    vGenero = rs.getString("genero");
+                    vGenero = pad2 ( vGenero,20);
+                    vEditorial = rs.getString("editorial");
+                    vEditorial = pad2 ( vEditorial,20);
+                    vAnioPublicacion = rs.getInt("ano");
+                    vISBN = rs.getInt("isbn");
+                    vidAutor = rs.getInt("fk_id_autor");
+                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 }
 
             } catch (SQLException e) {
@@ -234,46 +241,61 @@ public class LibroCN {
             Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
             Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
             Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
-            Io.sop("Muevete por la tabla y selecciona el ID del préstamo que deseas eliminar: ");
+            Io.sop("Muevete por la tabla y selecciona el isbn del libro que deseas eliminar: ");
             char opc = leerCaracter();
             switch (opc) {
                 case '+':
-                    pagina++;
+                    npag++;
                     break;
                 case '-':
-                    if (pagina > 1) {
-                        pagina--;
+                    if (npag > 1) {
+                        npag--;
                     } else {
-                        pagina = 1;
+                        npag = 1;
                     }
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    LibroCN.menuLibro();
                     break;
                 default:
                     salir = true;
+                    LibroCN.menuLibro();
                     break;
             }
         }
-        swisbnSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:");
-        ejecutarDelete(conn, swisbnSeleccionado);
-        Io.sop("Libro con ISBN: " + swisbnSeleccionado + " eliminado correctamente");
+        int swisbnSeleccionado = Io.leerInt("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:") ;
+        if (LibroCN.borrarISBN(conn,swisbnSeleccionado)){
+            System.out.println("Libro borrado correctamente");
+        }else{
+            System.out.println("El libro no se ha podido borrar");
+        }
         LibroCN.menuLibro();
     }
+    //Metodo para borrar el isbn
+    public static boolean borrarISBN(Connection conn,int swisbnSeleccionado){
+        Statement st;
+        int borradosLibro = 0;
+    try {
+        st = conn.createStatement();
 
-    public static boolean ejecutarDelete (Connection conn, String ISBN) {
-        String sql = "DELETE FROM libros WHERE isbn = " + ISBN;
-        try {
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
-        } catch (SQLException e) {
-            Io.Sop("Problema: "+sql);
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+        // Borrar ejemplares relacionados con el ISBN
+        String sqlEjemplares = "DELETE FROM ejemplares WHERE fk_isbn = " + swisbnSeleccionado;
+        int ejemplaresBorrados = st.executeUpdate(sqlEjemplares);
+        System.out.println("Ejemplares borrados: " + ejemplaresBorrados);
+
+        //Borrar el libro
+        String sqlLibro = "DELETE FROM libros WHERE isbn = " + swisbnSeleccionado;
+        borradosLibro = st.executeUpdate(sqlLibro);
+        System.out.println("Libros borrados: " + borradosLibro);
+
+        return borradosLibro > 0;
+
+    } catch (SQLException e) {
+        System.out.println("Problema al borrar: " + e.getErrorCode() + " " + e.getMessage());
+        return false;
     }
-
+    }
     public static char leerCaracter(){
         Scanner sc = new Scanner(System.in);
         char letra = ' ';
@@ -287,9 +309,143 @@ public class LibroCN {
         return letra;
     }
 
+    public static void modificarLibroConTabla(Connection conn, int nRegPag, int nPag) {
+        Statement stm = null;
+        ResultSet rs = null;
+        boolean salir = false;
+        int offset,vISBN,vAnioPublicacion,vidAutor;
+        String vTitulo,vGenero,vEditorial,sql;
+        while (!salir) {
+            offset = ( nPag -1)* nRegPag;
+            sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                            Modificacion LIBROS  |  PÁGINA: " + nPag + "                                 ║");
+            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
+            try {
+                stm = conn.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                    vTitulo = rs.getString("titulo");
+                    vTitulo= pad2(vTitulo,30);
+                    vGenero = rs.getString("genero");
+                    vGenero = pad2 ( vGenero,20);
+                    vEditorial = rs.getString("editorial");
+                    vEditorial = pad2 ( vEditorial,20);
+                    vAnioPublicacion = rs.getInt("ano");
+                    vISBN = rs.getInt("isbn");
+                    vidAutor = rs.getInt("fk_id_autor");
+                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
+                    
+                }
+    
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+            Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("Muevete por la tabla y selecciona el ISBN del libro que deseas modificar: ");
+            char opc = Io.leerCaracter();
+            switch (opc) {
+                case '+':
+                    nPag++;
+                    break;
+                case '-':
+                    if (nPag > 1) {
+                        nPag--;
+                    } else {
+                        nPag = 1;
+                    }
+                    break;
+                case 'x' | 'X':
+                    salir = true;
+                    LibroCN.menuLibro();
+                    break;
+                default:
+                    salir = true;
+                    LibroCN.menuLibro();
+                    break;
+            }
+        }
+         int vModificar = Io.leerInt("¿Estas seguro que quieres modificarlo? Introduce de nuevo isbn del libro:  ");
+         if (!Io.comprobarExistenciaInt(conn, "libros", "isbn", vModificar)) {
+                Io.sop(" No existe ningún libro con ese isbn.");
+                return;
+            }
+            Io.sop("¿Qué campo del libro  deseas modificar?");
+            Io.sop("1. ISBN");
+            Io.sop("2. Titulo");
+            Io.sop("3. Genero");
+            Io.sop("4. Editorial");
+            Io.sop("5. Año Publicacion");
+            Io.sop("6. Terminar");
+    
+            char opc = Io.leerCaracter();
+            String campo = "", nuevoValor = "";
+    
+            switch (opc) {
+                case '1':
+                    campo = "isbn";
+                    nuevoValor = Io.leerString("Introduce el nuevo ISBN del libro: ");
+                    break;
+                case '2':
+                    campo = "titulo";
+                    nuevoValor = Io.leerString("Introduce el nuevo titulo del libro:");
+                    break;
+                case '3':
+                    campo = "genero";
+                    nuevoValor =Io.leerString("Introduce el nuevo genero:");
+                    break;
+                case '4':
+                    campo = "editorial";
+                    nuevoValor = Io.leerString("Introduce la nueva editorial: ");
+                    break;
+                case '5':
+                    campo = "ano";
+                    nuevoValor = Io.leerString("Introduce el nuevo año de publicacion: ");
+                    break;
+                case '6':
+                    salir = true;
+                    break;
+                default:
+                    Io.sop("Opción no válida.");
+            }
+    
+            if (!campo.equals("")) {
+                if (ejecutarUpdateCampo(conn, vModificar, campo, nuevoValor)) {
+                    Io.sop(" Libro  modificado correctamente.");
+                } else {
+                    Io.sop(" Error al modificar el libro.");
+                }
+            }
+            LibroCN.menuLibro();
+            
+        }
+        public static boolean ejecutarUpdateCampo(Connection conn, int IsbnAntiguo, String campo, String  nuevoValor) {
+            String sql = "UPDATE libros SET " + campo + " = '" + nuevoValor + "' WHERE isbn = '" + IsbnAntiguo + "'";
+            /*sql = "UPDATE ejemplares SET " + campo + " = '" + nuevoValor + "' WHERE fk_isbn = '" + IsbnAntiguo + "'";*/
+            try {
+                Statement stmt = conn.createStatement();
+                stmt.executeUpdate(sql);
+            } catch (SQLException e) {
+                Io.sop(" Error con la query: " + sql);
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+       /*  public static void main(String[] args) {
+    
+            menuLibro();
+        
+        
+        }
+        */
     ////
     /// 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         Io.sop("***********************************************************************");
             Io.sop("********************  GESTION DE LIBROS  ****************");
             Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
@@ -304,10 +460,10 @@ public class LibroCN {
                     LibroCN.insertarLibro();
                     break;
                 case 2:
-                    LibroCN.consultaTablaDeleteLibro(conn, 10,1);
+                    LibroCN.borrarLibro();
                     break;
                 case 3:
-                    
+                    LibroCN.modificarLibro();
                     break;
                 case 4:
                 Io.sop("Saliendo...");
@@ -317,5 +473,5 @@ public class LibroCN {
             }
         }
 
-       */
+       
 }
