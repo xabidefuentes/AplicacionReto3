@@ -3,7 +3,7 @@ import Io.*;
 import static Io.Io.*;
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.Scanner;
+
 import principal.Prestamo;
 
 public class PrestamoCN {
@@ -23,13 +23,24 @@ public class PrestamoCN {
 
         LocalDate fechaPrestamo = leerDate("Ingresa la fecha de préstamo (YYYY-MM-DD): ");
 
-       // Comprobar si el ejemplar existe
+        // Comprobar si el ejemplar existe
+        String nombreLibro;
         do {
-            idEjemplar = leerString("Ingresa el ID del ejemplar: ");
-            if (!comprobarExistencia(conn, "ejemplares", "id_ejemplar", idEjemplar)) {
-                sop("❌ No existe ningún ejemplar con ese ID.");
+            nombreLibro = leerString("Ingresa el nombre del libro: ");
+            // Buscar el ID del ejemplar del libro por su nombre
+            idEjemplar = obtenerIdEjemplarPorNombre(conn, nombreLibro);
+
+            if (idEjemplar == null) {
+                sop("❌ No existe un ejemplar de ese libro o el libro no está disponible.");
+                continue;
             }
-        } while (!comprobarExistencia(conn, "ejemplares", "id_ejemplar", idEjemplar));
+
+            // Comprobar si el ejemplar está prestado
+            if (buscarPrestamoPorEjemplar(conn, idEjemplar) != 0) {
+                sop("❌ El libro ya está prestado. Elige otro.");
+                continue;
+            }
+        } while (idEjemplar == null || buscarPrestamoPorEjemplar(conn, idEjemplar) != 0);
 
         // Comprobar si el empleado existe
         do {
@@ -96,6 +107,41 @@ public class PrestamoCN {
             return null;
         }
     }
+
+    private static String obtenerIdEjemplarPorNombre(Connection conn, String nombreLibro) {
+        // Corregir la consulta para obtener el ID del ejemplar mediante el título del libro
+        String query = "SELECT id_ejemplar FROM ejemplares WHERE fk_isbn = (SELECT isbn FROM libros WHERE titulo = ?)";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, nombreLibro); // Establecemos el título del libro
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("id_ejemplar"); // Devuelve el id del ejemplar
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Si no se encuentra ningún ejemplar
+    }
+
+    private static int buscarPrestamoPorEjemplar(Connection conn, String idEjemplar) {
+        // Verifica si el ejemplar ya está prestado (si existe un préstamo activo)
+        String query = "SELECT COUNT(*) FROM prestamos WHERE fk_id_ejemplar = ? AND fecha_devolucion IS NULL";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, idEjemplar); // Establecemos el id del ejemplar
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1); // Devuelve la cantidad de préstamos activos para el ejemplar
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0; // Si no hay préstamos activos
+    }
+
     public static void consultaTablaPrestamo (Connection conn, int totalRegistros, int pagina) {
         Statement stm = null;
         ResultSet rs = null;
