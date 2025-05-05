@@ -9,6 +9,7 @@ import java.util.Scanner;
 
 import Io.*;
 import conexiones.*;
+import principal.Libro;
 
 public class LibroCN {
     //FUNCIONES
@@ -58,7 +59,7 @@ public class LibroCN {
     public static int insertarLibro(){
         Connection conn =Io.getConexion();
 
-        int ncambios = 0,vISBN,vAnioPublicacion;
+        int ncambios = 0,vISBN,vAnioPublicacion,numEjemplares=0;
         String vTitulo,vGenero,vEditorial;
 
         
@@ -72,17 +73,33 @@ public class LibroCN {
                 Io.sop("El libro ya existe, vuelve a introducirlo");
             }
         } while (Io.comprobarExistenciaInt(conn, "libros", "isbn", vISBN));
-        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro:");    
+        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro:");   
+        numEjemplares = Io.leerInt("¿Cuántos ejemplares tiene este libro?: "); 
         String sql = "insert into libros (isbn,titulo,genero,editorial,ano,fk_id_autor) values ('"+vISBN+"','"+vTitulo+"','"+vGenero+"','"+ vEditorial+"','"+vAnioPublicacion+"','" + (int) (Math.random() * 10)+ "')";  
 
 
         try{
             Statement st = conn.createStatement();   
             ncambios = st.executeUpdate(sql);
-            if (ncambios == 0) {
-                System.out.println("No se ha añadido el registro");
+            if (ncambios > 0) {
+                System.out.println("Libro registrado correctamente");
+    
+                int insertados = 0;
+                while (insertados < numEjemplares) {
+                    int idAleatorio = (int) (Math.random() * 10); 
+    
+                    // Comprobamos si ya existe ese id
+                    if (!Io.comprobarExistenciaInt(conn, "ejemplares", "id_ejemplar", idAleatorio)) {
+                        String sqlEjemplar = "INSERT INTO ejemplares (id_ejemplar, estado, fk_isbn) " +
+                                             "VALUES (" + idAleatorio + ", 'DISPONIBLE', '" + vISBN + "')";
+                        st.executeUpdate(sqlEjemplar);
+                        insertados++;
+                    }
+                }
+    
+                System.out.println(numEjemplares + " ejemplares añadidos correctamente.");
             } else {
-                System.out.println("Registro añadido");
+                System.out.println("No se ha añadido el libro.");
             }
         }
         catch(SQLException e){
@@ -151,6 +168,7 @@ public class LibroCN {
                 }
                 break;
             case 'x' : salir=true;
+            LibroCN.menuLibro();
                 break;
         }
     }
@@ -238,9 +256,11 @@ public class LibroCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    LibroCN.menuLibro();
                     break;
                 default:
                     salir = true;
+                    LibroCN.menuLibro();
                     break;
             }
         }
@@ -255,17 +275,26 @@ public class LibroCN {
     //Metodo para borrar el isbn
     public static boolean borrarISBN(Connection conn,int swisbnSeleccionado){
         Statement st;
-        int borrados;
-        String sql = "delete from libros where isbn = '"+swisbnSeleccionado+"'";
-        try{
-            st = conn.prepareStatement(sql);
-            borrados = st.executeUpdate(sql);
-            return borrados>0;
-        }
-        catch(SQLException e){
-            System.out.println("Problema al borrar: "+sql+e.getErrorCode()+" "+e.getMessage());
-            return false;
-        }
+        int borradosLibro = 0;
+    try {
+        st = conn.createStatement();
+
+        // Borrar ejemplares relacionados con el ISBN
+        String sqlEjemplares = "DELETE FROM ejemplares WHERE fk_isbn = " + swisbnSeleccionado;
+        int ejemplaresBorrados = st.executeUpdate(sqlEjemplares);
+        System.out.println("Ejemplares borrados: " + ejemplaresBorrados);
+
+        //Borrar el libro
+        String sqlLibro = "DELETE FROM libros WHERE isbn = " + swisbnSeleccionado;
+        borradosLibro = st.executeUpdate(sqlLibro);
+        System.out.println("Libros borrados: " + borradosLibro);
+
+        return borradosLibro > 0;
+
+    } catch (SQLException e) {
+        System.out.println("Problema al borrar: " + e.getErrorCode() + " " + e.getMessage());
+        return false;
+    }
     }
     public static char leerCaracter(){
         Scanner sc = new Scanner(System.in);
@@ -332,9 +361,11 @@ public class LibroCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    LibroCN.menuLibro();
                     break;
                 default:
                     salir = true;
+                    LibroCN.menuLibro();
                     break;
             }
         }
