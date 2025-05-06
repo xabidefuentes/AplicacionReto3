@@ -63,7 +63,7 @@ public class AutorCN {
                 Io.sop("ID ya existente, introduce otro");
             }
         } while (Io.comprobarExistenciaInt(conn, "autores", "id_autor", id_autor));
-        String sql = "INSERT INTO usuarios (id_autor, nombre, apellido, nacionalidad, fechaNac) " +
+        String sql = "INSERT INTO autores (id_autor, nombre, apellido, nacionalidad, fechaNac) " +
         "VALUES ('" + id_autor + "', '" + nombre + "', '" + apellido + "', '" + nacionalidad + "', '" + fechaNac + "')";       
         try{
             Statement st = conn.createStatement();   // es para que se agrege a la bbdd
@@ -89,7 +89,7 @@ public class AutorCN {
     public static boolean borrarAutor(Connection conn, int pAutor){
         PreparedStatement st;
         int borrados;
-        String sql="DELETE FROM autores WHERE USUCOD='"+pAutor+"'";
+        String sql="DELETE FROM autores WHERE id_autor='"+pAutor+"'";
         try{
             st= conn.prepareStatement(sql);
             borrados=st.executeUpdate();
@@ -103,7 +103,7 @@ public class AutorCN {
 
     //MODIFICAR AUTOR//
 
-    public static void modificarUsuarioConTabla(Connection conn, int nRegPag, int nPag) {
+    public static void modificarAutor(Connection conn, int nRegPag, int nPag) {
     Statement stm = null;
     ResultSet rs = null;
     boolean salir = false;
