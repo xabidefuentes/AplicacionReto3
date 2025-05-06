@@ -42,6 +42,8 @@ public class UsuarioCN {
     // Metodo para borrar usuario
     public static void borrarUsuario() {
         Connection conn = Io.getConexion();
+        if (conn==null) { Io.sop("sin conexión");return;}
+        Io.sop("Conexión correcta");
         borrarUsuarioConsultandoTabla(conn, 10, 1);
         Io.cerrarConexion(conn);
     }
@@ -170,22 +172,23 @@ public class UsuarioCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    UsuarioCN.menuUsuario();
+                    //UsuarioCN.menuUsuario();
                     break;
                 default:
                     salir = true;
-                    menuUsuario();
+                    //menuUsuario();
                     break;
             }
         }
         String vDniBorrado = Io
                 .leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo dni del usuario:  ");
+        Io.sop("Voy a borrar el "+vDniBorrado);
         if (UsuarioCN.borrarDato(conn, vDniBorrado)) {
             System.out.println("Usuario borrado correctamente");
         } else {
             System.out.println("Usuario no se ha podido borrar");
         }
-        UsuarioCN.menuUsuario();
+        //UsuarioCN.menuUsuario();
     }
 
     // Metodo para borrar el dato
