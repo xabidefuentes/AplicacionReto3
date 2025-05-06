@@ -82,7 +82,7 @@ public class AutorCN {
         do {
             fechaNac = Io.leerDate("Dime cuando nació el autor: ");//Leemos del teclado
             if (!Io.comprobarExistenciaLocalDate(conn, "autores", "fecha_nacimiento", fechaNac)) {
-                Io.sop("Ningún autor ha nacido en esa fecha.")
+                Io.sop("Ningún autor ha nacido en esa fecha.");
             }
         } while (!Io.comprobarExistenciaLocalDate(conn, "autores", "fecha_nacimiento", fechaNac));
         
