@@ -12,6 +12,8 @@ public class UsuarioCN {
     // FUNCIONES
     // Menu usuario
     public static void menuUsuario() {
+        int opcion;
+        do { 
         Io.sop("***********************************************************************");
         Io.sop("********************  GESTION DE USUARIOS  ****************");
         Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
@@ -20,7 +22,7 @@ public class UsuarioCN {
         Io.sop("2. BORRAR USUARIO");
         Io.sop("3. MODIFICAR USUARIO");
         Io.sop("4. SALIR");
-        int opcion = Io.leerInt("Selecciona una opción: ");
+        opcion = Io.leerInt("Selecciona una opción: ");
         switch (opcion) {
             case 1:
                 UsuarioCN.insertarUsuario();
@@ -37,12 +39,16 @@ public class UsuarioCN {
             default:
                 Io.sop("Opción no válida. Intenta otra vez.");
         }
+    }while (opcion >0) ;
     }
 
     // Metodo para borrar usuario
     public static void borrarUsuario() {
         Connection conn = Io.getConexion();
-        if (conn==null) { Io.sop("sin conexión");return;}
+        if (conn==null) { 
+            Io.sop("sin conexión");
+            return;
+        }
         Io.sop("Conexión correcta");
         borrarUsuarioConsultandoTabla(conn, 10, 1);
         Io.cerrarConexion(conn);
@@ -50,6 +56,10 @@ public class UsuarioCN {
 
     public static void modificarUsuario() {
         Connection conn = Io.getConexion();
+        if (conn==null) { 
+            Io.sop("sin conexión");
+            return;
+        }
         modificarUsuarioConTabla(conn, 5, 1);
         Io.cerrarConexion(conn);
     }
@@ -72,8 +82,12 @@ public class UsuarioCN {
     }
 
     // INSERTAR USUARIO
-    public static int insertarUsuario() {
+    public static void insertarUsuario() {
         Connection conn = Io.getConexion();
+        if (conn==null) { 
+            Io.sop("sin conexión");
+            return;
+        }
         int randomPassword = (int) (Math.random() * 9000) + 1000; // genera número aleatorio entre 1000 y 9999
         int cambios = 0, vTelefono;
         String vNombre, vDni, vEmail;
@@ -106,9 +120,9 @@ public class UsuarioCN {
             System.out.println(sql);
         }
 
-        menuUsuario();
-        return cambios;
+       
     }
+
 
     // Metodo para borrar el usuario consultandolo en la tabla
     public static void borrarUsuarioConsultandoTabla(Connection conn, int nRegPag, int nPag) {
@@ -172,11 +186,9 @@ public class UsuarioCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    //UsuarioCN.menuUsuario();
                     break;
                 default:
                     salir = true;
-                    //menuUsuario();
                     break;
             }
         }
@@ -188,7 +200,6 @@ public class UsuarioCN {
         } else {
             System.out.println("Usuario no se ha podido borrar");
         }
-        //UsuarioCN.menuUsuario();
     }
 
     // Metodo para borrar el dato
@@ -272,11 +283,9 @@ public class UsuarioCN {
                     break;
                 case 'x':
                     salir = true;
-                    UsuarioCN.menuUsuario();
                     break;
                 default:
                     salir = true;
-                    UsuarioCN.menuUsuario();
                     break;
             }
         }
@@ -373,11 +382,9 @@ public class UsuarioCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    UsuarioCN.menuUsuario();
                     break;
                 default:
                     salir = true;
-                    UsuarioCN.menuUsuario();
                     break;
             }
         }
@@ -443,7 +450,6 @@ public class UsuarioCN {
                 Io.sop(" Error al modificar el usuario.");
             }
         }
-        UsuarioCN.menuUsuario();
 
     }
 
@@ -465,8 +471,10 @@ public class UsuarioCN {
 
     public static void main(String[] args) {
 
-        menuUsuario();
+        UsuarioCN.menuUsuario();
 
     }
-
 }
+
+
+
