@@ -37,7 +37,7 @@ public class AutorCN {
                 AutorCN.borrarAutor();        
                 break;
             case 3:
-                
+                AutorCN.modificarAutor(getConexion(), opcion, opcion);
                 break;
             case 4:
             Io.sop("Saliendo...");
