@@ -33,13 +33,13 @@ public class UsuarioCN {
                 modificarUsuario();
                 break;
             case 4:
-                Io.sop("Saliendo...");
-                break;
+                Io.sop("Saliendo.. Hasta pronto");
+                return;
             default:
                 Io.sop("Opción no válida. Intenta otra vez.");
         }
     }
- while (opcion>0);
+ while (opcion>0 );
 }
 
     // Metodo para borrar usuario
