@@ -63,7 +63,7 @@ public class AutorCN {
                 Io.sop("ID ya existente, introduce otro");
             }
         } while (Io.comprobarExistenciaInt(conn, "autores", "id_autor", id_autor));
-        String sql = "INSERT INTO usuarios (id_autor, nombre, apellido, nacionalidad, fechaNac) " +
+        String sql = "INSERT INTO autores (id_autor, nombre, apellido, nacionalidad, fechaNac) " +
         "VALUES ('" + id_autor + "', '" + nombre + "', '" + apellido + "', '" + nacionalidad + "', '" + fechaNac + "')";       
         try{
             Statement st = conn.createStatement();   // es para que se agrege a la bbdd
@@ -89,7 +89,7 @@ public class AutorCN {
     public static boolean borrarAutor(Connection conn, int pAutor){
         PreparedStatement st;
         int borrados;
-        String sql="DELETE FROM libros WHERE USUCOD='"+pAutor+"'";
+        String sql="DELETE FROM autores WHERE id_autor='"+pAutor+"'";
         try{
             st= conn.prepareStatement(sql);
             borrados=st.executeUpdate();
@@ -103,43 +103,35 @@ public class AutorCN {
 
     //MODIFICAR AUTOR//
 
-    public static void modificarUsuarioConTabla(Connection conn, int nRegPag, int nPag) {
+    public static void modificarAutor(Connection conn, int nRegPag, int nPag) {
     Statement stm = null;
     ResultSet rs = null;
     boolean salir = false;
     int offset;
-    String vDni,vNom,vEmail,sql,vPasword,vPen,vFechaIni,vFechaFin,vTelefono;
+    String vID, vNom, vApe, vFN, vNac;
     while (!salir) {
         offset = ( nPag -1)* nRegPag;
-        sql = " select * from usuarios limit " +nRegPag+ " offset "+ offset + " ";
-        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-        Io.sop(  "║                                         LISTADO DE AUTORES  |  PÁGINA: " + nPag + "                                                                   ║");
-        Io.sop("╠═════════╦════════════════════════╦══════════════════════════╦══════════════════════╦═════════════════╦════════════════╦════════════════╦════════════╣");
-        Io.sop("║ DNI     ║       NOMBRE           ║        EMAIL             ║        TELEFONO      ║     PASSWORD    ║ PENALIZACIÓN   ║ FECHA INICIO   ║ FECHA FIN  ║");
-        Io.sop("╚═════════╩════════════════════════╩══════════════════════════╩══════════════════════╩═════════════════╩════════════════╩════════════════╩════════════╝");
+        String sql = " select * from autores limit " +nRegPag+ " offset "+ offset + " ";
+        Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        Io.sop(  "║                                         LISTADO DE AUTORES  |  PÁGINA: " + nPag + "                                                                 ║");
+        Io.sop("╠══════════════╦════════════════════════╦═══════════════════════════╦═══════════════════════════╦═════════════════════════════════════════════════════╣");
+        Io.sop("║ ID_Autor     ║       NOMBRE           ║        APELLIDOS          ║     FECHA NACIMIENTO      ║              NACIONALIDAD                           ║");
+        Io.sop("╚══════════════╩════════════════════════╩═══════════════════════════╩═══════════════════════════╩═════════════════════════════════════════════════════╝");
         try {
             stm = conn.createStatement();
             rs = stm.executeQuery(sql);
             while (rs.next()) {
-                vDni = rs.getString("dni");
-                vDni= padl(vDni,10);
+                vID = rs.getString("id_autor");
+                vID = Io.PADL(vID,10);
                 vNom = rs.getString("nombre");
-                vNom = padl ( vNom,20);// Para que quede bien en columna del mismo tamaño
-                vTelefono = rs.getString("telefono");
-                vTelefono = padl(vTelefono,23);
-                vEmail = rs.getString("email");
-                vEmail = padl(vEmail, 27);
-                vPasword = rs.getString("password");
-                vPasword= padl(vPasword,15);
-                vPen =rs.getString("penalizacion");
-                vPen = padl(vPen,15);
-                vFechaIni =rs.getString("fecha_inicio_penalizacion");
-                vFechaIni = padl(vFechaIni, 15);
-                vFechaFin = rs.getString("fecha_fin_penalizacion");
-                vFechaFin = padl(vFechaFin,20);
-                System.out.println( vDni +" | "+ vNom +" | "+ vEmail+"| "+vTelefono+"| "+vPasword+" |"+vPen+"|"
-                +vFechaIni+"|"+vFechaFin);
-                
+                vNom = Io.PADL( vNom,20);
+                vApe = rs.getString("apellidos");
+                vApe = Io.PADL(vApe,25);
+                vFN = rs.getString("fecha_nacimiento");
+                vFN = Io.PADL(vFN, 10);
+                vNac = rs.getString("nacionalidad");
+                vNac = Io.PADL(vNac,20);
+                System.out.println( vID +" | "+ vNom +" | "+ vApe+"| "+vFN+"| "+vNac);
             }
 
         } catch (SQLException e) {
@@ -169,54 +161,43 @@ public class AutorCN {
                 break;
         }
     }
-     String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo dni del usuario:  ");
-     if (!Io.comprobarExistencia(conn, "usuarios", "dni", vModificar)) {
-            Io.sop(" No existe ningún usuario con ese dni.");
+     String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo el id_autor:  ");
+     if (!Io.comprobarExistencia(conn, "autores", "id_autor", vModificar)) {
+            Io.sop(" No existe ningún autor con ese ID.");
             return;
         }
         Io.sop("¿Qué campo del usuario  deseas modificar?");
-        Io.sop("1. Dni");
+        Io.sop("1. ID_Autor");
         Io.sop("2. Nombre");
-        Io.sop("3. Telefono");
-        Io.sop("4. Email");
-        Io.sop("5. Penalizacion");
-        Io.sop("6. Fecha inicio Penalizacion");
-        Io.sop("7.Fecha fin de penalizacion");
-        Io.sop("8. Terminar");
+        Io.sop("3. Apellidos");
+        Io.sop("4. Fecha Nacimiento");
+        Io.sop("5. Nacionalidad");
 
         char opc = Io.leerCaracter();
         String campo = "", nuevoValor = "";
 
         switch (opc) {
             case '1':
-                campo = "dni";
-                nuevoValor = Io.leerString("Introduce el nuevo dni del usuario: ");
+                campo = "id_autor";
+                nuevoValor = Io.leerString("Introduce el nuevo id_autor: ");
                 break;
             case '2':
                 campo = "nombre";
-                nuevoValor = Io.leerString("Introduce el nuevo nombre del usuario");
+                nuevoValor = Io.leerString("Introduce el nuevo nombre");
                 break;
             case '3':
-                campo = "Telefono";
-                nuevoValor =Io.leerString("Introduce el nuevo telefono");
+                campo = "apellidos";
+                nuevoValor =Io.leerString("Introduce el nuevo apellido");
                 break;
             case '4':
-                campo = "email";
-                nuevoValor = Io.leerString("Introduce el nuevo email ");
+                campo = "fecha_nacimiento";
+                nuevoValor = Io.leerString("Introduce la nuevo fecha nacimiento");
                 break;
             case '5':
-                campo = "penalizacion";
-                nuevoValor = Io.leerString("Introduce la nueva penalizacion Si/No: ");
+                campo = "nacionalidad";
+                nuevoValor = Io.leerString("Introduce la nueva nacionalidad");
                 break;
             case '6':
-                campo = "fecha_inicio_penalizacion";
-                nuevoValor = Io.leerString("Introduce la nueva fecha de inicio de la penalizacion ");
-                break;
-            case '7':
-                campo = "fecha_fin_penalizacion";
-                nuevoValor = Io.leerString("Introduce la nueva fecha de fin de la penalizacion ");
-                break;
-            case '8':
                 salir = true;
                 break;
             default:
@@ -227,11 +208,24 @@ public class AutorCN {
             if (ejecutarUpdateCampo(conn, vModificar, campo, nuevoValor)) {
                 Io.sop(" Usuario  modificado correctamente.");
             } else {
-                Io.sop(" Error al modificar el usuario.");
+                Io.sop(" Error al modificar el autor.");
             }
         }
         UsuarioCN.menuUsuario();
 
+    }
+
+    public static boolean ejecutarUpdateCampo(Connection conn, String idAntiguo, String campo, String nuevoValor) {
+        String sql = "UPDATE autores SET " + campo + " = '" + nuevoValor + "' WHERE id_autor = '" + idAntiguo + "'";
+        try {
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            Io.sop("❌ Error con la query: " + sql);
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
 }
