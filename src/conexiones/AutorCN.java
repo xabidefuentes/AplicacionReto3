@@ -135,7 +135,8 @@ public class AutorCN {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            Io.sop("problemas al conectar.");
+            //e.printStackTrace();
         }
         Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
         Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
@@ -222,7 +223,7 @@ public class AutorCN {
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             Io.sop("❌ Error con la query: " + sql);
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
         return true;
