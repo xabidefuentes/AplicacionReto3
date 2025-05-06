@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class UsuarioCN {
-
     // FUNCIONES
     // Menu usuario
     public static void menuUsuario() {
@@ -25,13 +24,13 @@ public class UsuarioCN {
         opcion = Io.leerInt("Selecciona una opción: ");
         switch (opcion) {
             case 1:
-                UsuarioCN.insertarUsuario();
+                insertarUsuario();
                 break;
             case 2:
-                UsuarioCN.borrarUsuario();
+                borrarUsuario();
                 break;
             case 3:
-                UsuarioCN.modificarUsuario();
+                modificarUsuario();
                 break;
             case 4:
                 Io.sop("Saliendo...");
@@ -39,8 +38,9 @@ public class UsuarioCN {
             default:
                 Io.sop("Opción no válida. Intenta otra vez.");
         }
-    }while (opcion >0) ;
     }
+ while (opcion>0);
+}
 
     // Metodo para borrar usuario
     public static void borrarUsuario() {
@@ -85,8 +85,8 @@ public class UsuarioCN {
     public static void insertarUsuario() {
         Connection conn = Io.getConexion();
         if (conn==null) { 
-            Io.sop("sin conexión");
-            return;
+             Io.sop("sin conexión");
+             return;
         }
         int randomPassword = (int) (Math.random() * 9000) + 1000; // genera número aleatorio entre 1000 y 9999
         int cambios = 0, vTelefono;
@@ -471,7 +471,7 @@ public class UsuarioCN {
 
     public static void main(String[] args) {
 
-        UsuarioCN.menuUsuario();
+        menuUsuario();
 
     }
 }
