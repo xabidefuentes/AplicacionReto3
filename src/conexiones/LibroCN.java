@@ -141,7 +141,7 @@ public class LibroCN {
         int fk_id_autor;
         boolean existe;
         do {
-            fk_id_autor = (int)(Math.random() * 10) + 1; // valores del 1 al 10
+            fk_id_autor = (int)(Math.random() * 20) + 1; // valores del 1 al 20
             existe = Io.comprobarExistenciaInt(conn, "libros", "fk_id_autor", fk_id_autor);
         } while (existe);
         String sql = "insert into libros (isbn,titulo,genero,editorial,ano,fk_id_autor) values ('"+vISBN+"','"+vTitulo+"','"+vGenero+"','"+ vEditorial+"','"+vAnioPublicacion+"','" + fk_id_autor+ "')";  
