@@ -1,6 +1,5 @@
 package conexiones;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +9,7 @@ import java.util.Scanner;
 import Io.*;
 import conexiones.*;
 import principal.Libro;
+
 
 public class LibroCN {
     //FUNCIONES
@@ -44,6 +44,8 @@ public class LibroCN {
 
         public static void borrarLibro(){
             Connection conn = Io.getConexion();
+            if (conn==null) { Io.sop("sin conexión");return;}
+            Io.sop("Conexión correcta");
             consultaTablaDeleteLibro(conn, 10, 1);
             Io.cerrarConexion(conn);
         }
@@ -54,28 +56,95 @@ public class LibroCN {
             modificarLibroConTabla(conn, 10, 1);
             Io.cerrarConexion(conn);
         }
-    //INSERTAR LIBROS
+        //Funciones
+        public static String validarLibro (Connection conn){
+            String vTitulo;
+            do {
+                vTitulo = Io.leerString("Introduce el nuevo título del libro:");
+                 if (vTitulo.equals("")) {
+                     Io.sop("El título no puede estar vacío.");
+                 } else if (Io.comprobarExistencia(conn, "libros", "titulo", vTitulo)) {
+                     Io.sop("Ese título ya existe. Intenta con otro.");
+                     vTitulo = "";
+                 }
+            } while (vTitulo.equals("")|| Io.comprobarExistencia(conn, "libros", "titulo", vTitulo));
+            return vTitulo;
+        }
+
+        public static String validarISBN (Connection conn){
+            String vISBN;
+            do{
+                vISBN = Io.leerString("Dime el ISBN del libro:");
+                if (Io.comprobarExistencia(conn, "libros", "isbn", vISBN)) {
+                    Io.sop("El libro ya existe, vuelve a introducirlo");
+                }
+            } while (Io.comprobarExistencia(conn, "libros", "isbn", vISBN));
+            return vISBN;
+        }
+
+        public static boolean validarAnioPublicacion (int ano){
+            if (ano <= 1850 || ano > 2025) {
+                return false;
+            }
+            return true;
+        }
+        public static int ejecutarano (Connection conn){
+            int ano;
+            boolean valido = false;
+            do{
+                ano = Io.leerInt("Dime el año de publicación del libro:");
+                if(!validarAnioPublicacion(ano)){
+                    Io.sop("Introduce un año válido");
+                }else{
+                    valido = true;
+                }
+            }while(!valido);
+            return ano;
+        }
+            //INSERTAR LIBROS
+
 
     public static int insertarLibro(){
+
         Connection conn =Io.getConexion();
 
-        int ncambios = 0,vISBN,vAnioPublicacion,numEjemplares=0;
-        String vTitulo,vGenero,vEditorial;
+        int ncambios = 0,numEjemplares=0,vAnioPublicacion;
+        String vTitulo,vGenero,vEditorial,vISBN;
 
         
         System.out.println("Comenzamos a introducir los datos");
-        vTitulo = Io.leerString("Dime el titulo del libro: ");
-        vGenero = Io.leerString("Dime el genero del libro: ");
-        vEditorial = Io.leerString("Dime la editorial del libro: ");
-        do{
-            vISBN = Io.leerInt("Dime el ISBN del libro:");
-            if (Io.comprobarExistenciaInt(conn, "libros", "isbn", vISBN)) {
-                Io.sop("El libro ya existe, vuelve a introducirlo");
+        vTitulo = validarLibro(conn);
+
+        do {
+            vGenero = Io.leerString("Dime el género del libro: ");
+            if (vGenero.equals("")) {
+                Io.sop("El género no puede estar vacío.");
             }
-        } while (Io.comprobarExistenciaInt(conn, "libros", "isbn", vISBN));
-        vAnioPublicacion=Io.leerInt("Dime el año de publicacion del libro:");   
-        numEjemplares = Io.leerInt("¿Cuántos ejemplares tiene este libro?: "); 
-        String sql = "insert into libros (isbn,titulo,genero,editorial,ano,fk_id_autor) values ('"+vISBN+"','"+vTitulo+"','"+vGenero+"','"+ vEditorial+"','"+vAnioPublicacion+"','" + (int) (Math.random() * 10)+ "')";  
+        } while (vGenero.equals(""));  
+
+        do {
+            vEditorial = Io.leerString("Dime la editorial del libro: ");
+            if (vEditorial.equals("")) {
+                Io.sop("La editorial no puede estar vacía.");
+            }
+        } while (vEditorial.equals(""));
+
+        vISBN=validarISBN(conn);
+        vAnioPublicacion=ejecutarano(conn);
+        do {
+            numEjemplares = Io.leerInt("¿Cuántos ejemplares tiene este libro?:"); 
+            if (numEjemplares < 0) {
+                Io.sop("El número de ejemplares no puede ser negativo.");
+            }
+        } while (numEjemplares < 0);
+        // Generar fk_id_autor único (del 1 al 10)
+        int fk_id_autor;
+        boolean existe;
+        do {
+            fk_id_autor = (int)(Math.random() * 20) + 1; // valores del 1 al 20
+            existe = Io.comprobarExistenciaInt(conn, "libros", "fk_id_autor", fk_id_autor);
+        } while (existe);
+        String sql = "insert into libros (isbn,titulo,genero,editorial,ano,fk_id_autor) values ('"+vISBN+"','"+vTitulo+"','"+vGenero+"','"+ vEditorial+"','"+vAnioPublicacion+"','" + fk_id_autor+ "')";  
 
 
         try{
@@ -168,7 +237,6 @@ public class LibroCN {
                 }
                 break;
             case 'x' : salir=true;
-            LibroCN.menuLibro();
                 break;
         }
     }
@@ -256,15 +324,14 @@ public class LibroCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    LibroCN.menuLibro();
                     break;
                 default:
                     salir = true;
-                    LibroCN.menuLibro();
                     break;
             }
         }
         int swisbnSeleccionado = Io.leerInt("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ISBN del libro:") ;
+        Io.sop("Voy a borrar el "+swisbnSeleccionado);
         if (LibroCN.borrarISBN(conn,swisbnSeleccionado)){
             System.out.println("Libro borrado correctamente");
         }else{
@@ -361,16 +428,14 @@ public class LibroCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    LibroCN.menuLibro();
                     break;
                 default:
                     salir = true;
-                    LibroCN.menuLibro();
                     break;
             }
         }
-         int vModificar = Io.leerInt("¿Estas seguro que quieres modificarlo? Introduce de nuevo isbn del libro:  ");
-         if (!Io.comprobarExistenciaInt(conn, "libros", "isbn", vModificar)) {
+         int IsbnAntiguo = Io.leerInt("¿Estas seguro que quieres modificarlo? Introduce de nuevo isbn del libro:  ");
+         if (!Io.comprobarExistenciaInt(conn, "libros", "isbn", IsbnAntiguo)) {
                 Io.sop(" No existe ningún libro con ese isbn.");
                 return;
             }
@@ -384,15 +449,17 @@ public class LibroCN {
     
             char opc = Io.leerCaracter();
             String campo = "", nuevoValor = "";
+            
+            
     
             switch (opc) {
                 case '1':
                     campo = "isbn";
-                    nuevoValor = Io.leerString("Introduce el nuevo ISBN del libro: ");
+                    nuevoValor = validarISBN(conn);
                     break;
                 case '2':
                     campo = "titulo";
-                    nuevoValor = Io.leerString("Introduce el nuevo titulo del libro:");
+                    nuevoValor = validarLibro(conn);
                     break;
                 case '3':
                     campo = "genero";
@@ -404,8 +471,9 @@ public class LibroCN {
                     break;
                 case '5':
                     campo = "ano";
-                    nuevoValor = Io.leerString("Introduce el nuevo año de publicacion: ");
-                    break;
+                    nuevoValor = String.valueOf(ejecutarano(conn)); 
+                                       
+                     break;
                 case '6':
                     salir = true;
                     break;
@@ -414,18 +482,16 @@ public class LibroCN {
             }
     
             if (!campo.equals("")) {
-                if (ejecutarUpdateCampo(conn, vModificar, campo, nuevoValor)) {
+                if (ejecutarUpdate(conn, IsbnAntiguo, campo, nuevoValor)) {
                     Io.sop(" Libro  modificado correctamente.");
                 } else {
                     Io.sop(" Error al modificar el libro.");
                 }
             }
-            LibroCN.menuLibro();
-            
         }
-        public static boolean ejecutarUpdateCampo(Connection conn, int IsbnAntiguo, String campo, String  nuevoValor) {
+       public static boolean ejecutarUpdate(Connection conn, int IsbnAntiguo, String campo, String  nuevoValor) {
+
             String sql = "UPDATE libros SET " + campo + " = '" + nuevoValor + "' WHERE isbn = '" + IsbnAntiguo + "'";
-            /*sql = "UPDATE ejemplares SET " + campo + " = '" + nuevoValor + "' WHERE fk_isbn = '" + IsbnAntiguo + "'";*/
             try {
                 Statement stmt = conn.createStatement();
                 stmt.executeUpdate(sql);
@@ -435,43 +501,19 @@ public class LibroCN {
                 return false;
             }
             return true;
-        }
-       /*  public static void main(String[] args) {
+       }
+     
+      
+        
+       
+        
+        
+        public static void main(String[] args) {
     
             menuLibro();
         
         
         }
-        */
-    ////
-    /// 
-    public static void main(String[] args) {
-        Io.sop("***********************************************************************");
-            Io.sop("********************  GESTION DE LIBROS  ****************");
-            Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
-            Io.sop("**************************   DE MUSKIZ  ************************************");
-            Io.sop("1. AGREGAR LIBRO");
-            Io.sop("2. BORRAR LIBRO");
-            Io.sop("3. MODIFICAR LIBRO");
-            Io.sop("4. SALIR");
-            int opcion = Io.leerInt("Selecciona una opción: ");
-            switch (opcion) {
-                case 1:
-                    LibroCN.insertarLibro();
-                    break;
-                case 2:
-                    LibroCN.borrarLibro();
-                    break;
-                case 3:
-                    LibroCN.modificarLibro();
-                    break;
-                case 4:
-                Io.sop("Saliendo...");
-                    break;
-                default:
-                    Io.sop("Opción no válida. Intenta otra vez.");
-            }
-        }
-
+        
        
 }

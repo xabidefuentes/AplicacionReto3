@@ -21,9 +21,9 @@ public class Io {
     }
 // FUNCIONES BASICAS DE CONEXIÓN
 public static Connection getConexion(){
-    String url = "jdbc:mysql://localhost:3306/web_reto";
-    String user = "root";
-    String pass = "";
+    String url = "jdbc:mysql://datos.somorrostro.com:3306/2425XabiDeFuentes";
+    String user = "2425XabiDeFuentes";
+    String pass = "2425XabiDeFuentes";
     Connection conn = null;
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -112,6 +112,18 @@ public static Connection getConexion(){
     }
 
     public static boolean comprobarExistenciaInt(Connection conn, String tabla, String columna, int valor) {
+        String sql = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = '" + valor + "'";
+        try (Statement stmt = conn.createStatement(); var rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            Io.sop("⚠️ Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean comprobarExistenciaLocalDate(Connection conn, String tabla, String columna, LocalDate valor) {
         String sql = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = '" + valor + "'";
         try (Statement stmt = conn.createStatement(); var rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
