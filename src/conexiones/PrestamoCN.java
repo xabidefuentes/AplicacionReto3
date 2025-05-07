@@ -9,6 +9,10 @@ import principal.Prestamo;
 public class PrestamoCN {
     public static void añadirPrestamo() {
         Connection conn = getConexion();
+        if (conn == null) {
+            sop("❌ Error al conectar a la base de datos.");
+            Prestamo.menuPrestamo();
+        }
         String dni;
         String idEjemplar = "";
         String dniEmpleado;
@@ -93,7 +97,7 @@ public class PrestamoCN {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs;
-            while (true) {
+            while (id>0) {
                 String sql = "SELECT COUNT(*) FROM prestamos WHERE id_prestamo = " + id;
                 rs = stmt.executeQuery(sql);
                 if (rs.next() && rs.getInt(1) == 0) {
@@ -105,9 +109,14 @@ public class PrestamoCN {
             sop("⚠️ Error al generar ID: " + e.getMessage());
             return -1;
         }
+        return 0;
     }
     public static void borrarPrestamo(){
         Connection conn = getConexion();
+        if (conn == null) {
+            sop("❌ Error al conectar a la base de datos.");
+            Prestamo.menuPrestamo();
+        }
         consultaTablaDelete(conn, 5, 1);
         cerrarConexion(conn);
     }

@@ -21,9 +21,9 @@ public class Io {
     }
 // FUNCIONES BASICAS DE CONEXIÓN
 public static Connection getConexion(){
-    String url = "jdbc:mysql://localhost:3306/web_reto";
-    String user = "root";
-    String pass = "";
+    String url = "jdbc:mysql://datos.somorrostro.com:3306/2425XabiDeFuentes";
+    String user = "2425XabiDeFuentes";
+    String pass = "2425XabiDeFuentes";
     Connection conn = null;
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");

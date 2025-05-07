@@ -36,7 +36,7 @@ public class main {
                 UsuarioCN.menuUsuario();
                 break;
             case 5:
-                // Llamar a la función de búsquedas
+                Busquedas.menuBusquedas();
                 break;
             case 6:
                 Io.sop("Saliendo...");
@@ -44,7 +44,5 @@ public class main {
             default:
                 Io.sop("Opción no válida. Intenta otra vez.");
         }
-
-
     }
 }
