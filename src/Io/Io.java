@@ -123,6 +123,18 @@ public static Connection getConexion(){
         return false;
     }
 
+    public static boolean comprobarExistenciaLocalDate(Connection conn, String tabla, String columna, LocalDate valor) {
+        String sql = "SELECT COUNT(*) FROM " + tabla + " WHERE " + columna + " = '" + valor + "'";
+        try (Statement stmt = conn.createStatement(); var rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            Io.sop("⚠️ Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
+        }
+        return false;
+    }
+
 // FUNCIONES DE ESCANER
     private static final Scanner scanner = new Scanner(System.in);
     public static String leerString(String mensaje) {
