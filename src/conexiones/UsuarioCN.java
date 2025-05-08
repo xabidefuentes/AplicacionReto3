@@ -1,10 +1,7 @@
 package conexiones;
 
 import Io.Io;
-
 import java.sql.*;
-
-import static Io.Io.sop;
 
 public class UsuarioCN {
     // FUNCIONES
@@ -78,6 +75,7 @@ public class UsuarioCN {
         } while (!esCorreoValido(vEmail));
         return vEmail;
     }
+    //Metodo para validar telefono
     public static boolean validarTelefono(String telefono) {
         if (telefono == null || telefono.length() != 9) {
             return false;
@@ -90,10 +88,10 @@ public class UsuarioCN {
     String vTelefono;
     do {
         vTelefono = Io.leerString("Dime el telefono del usuario: ");
-        if (!esCorreoValido(vTelefono)) {
+        if (!validarTelefono(vTelefono)) {
             Io.sop("Telefono no valido. Asegúrate de que tenga formato correcto de 9 números");
         }
-    } while (!esCorreoValido(vTelefono));
+    } while (!validarTelefono(vTelefono));
     return vTelefono;
 }
 
