@@ -290,19 +290,19 @@ public class AutorCN {
                 break;
             case '2':
                 campo = "nombre";
-                nuevoValor = Io.leerString("Introduce el nuevo nombre");
+                nuevoValor = Io.leerString("Introduce el nuevo nombre: ");
                 break;
             case '3':
                 campo = "apellidos";
-                nuevoValor =Io.leerString("Introduce el nuevo apellido");
+                nuevoValor =Io.leerString("Introduce el nuevo apellido: ");
                 break;
             case '4':
                 campo = "fecha_nacimiento";
-                nuevoValor = Io.leerString("Introduce la nuevo fecha nacimiento");
+                nuevoValor = Io.leerString("Introduce la nuevo fecha nacimiento: ");
                 break;
             case '5':
                 campo = "nacionalidad";
-                nuevoValor = Io.leerString("Introduce la nueva nacionalidad");
+                nuevoValor = Io.leerString("Introduce la nueva nacionalidad: ");
                 break;
             case '6':
                 salir = true;
