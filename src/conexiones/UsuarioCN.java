@@ -93,6 +93,7 @@ public class UsuarioCN {
         String vNombre, vDni, vEmail;
 
         vNombre = Io.leerString("Dime el nombre y apellido del usuario: ");
+        vNombre = vNombre.toUpperCase();
 
         // Comprobación para ver si el DNI está repetido y si es correcto
         vDni = Io.ejecutarValidarDni(conn);
