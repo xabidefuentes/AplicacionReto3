@@ -55,10 +55,10 @@ public class UsuarioCN {
     String vTelefono;
     do {
         vTelefono = Io.leerString("Dime el telefono del usuario: ");
-        if (!esCorreoValido(vTelefono)) {
+        if (!validarTelefono(vTelefono)) {
             Io.sop("Telefono no valido. Asegúrate de que tenga formato correcto de 9 números");
         }
-    } while (!esCorreoValido(vTelefono));
+    } while (!validarTelefono(vTelefono));
     return vTelefono;
 }
 
