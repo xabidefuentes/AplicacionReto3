@@ -39,7 +39,7 @@ public class Busquedas {
                     // AUTORES
                     break;
                 case 4:
-                    UsuarioCN.consultarUsuarioPaginado(conn, 5, 1);
+                   /* UsuarioCN.consultarUsuarioPaginado(conn, 5, 1);*/
                     break;
                 case 5:
                     System.out.println("Saliendo del menú de préstamos.");

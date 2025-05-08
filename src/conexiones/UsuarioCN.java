@@ -1,5 +1,5 @@
+package conexiones;
 import Io.Io;
-
 import java.sql.*;
 
 import static Io.Io.sop;
@@ -35,13 +35,13 @@ public class UsuarioCN {
                 default:
                     Io.sop("Opción no válida. Intenta otra vez.");
             }
-        } while (opcion>0 );
+        } while (opcion > 0);
     }
 
     // Metodo para borrar usuario
     public static void borrarUsuario() {
         Connection conn = Io.getConexion();
-        if (conn==null) {
+        if (conn == null) {
             Io.sop("Sin Conexión");
             return;
         }
@@ -52,7 +52,7 @@ public class UsuarioCN {
 
     public static void modificarUsuario() {
         Connection conn = Io.getConexion();
-        if (conn==null) {
+        if (conn == null) {
             Io.sop("Sin Conexión");
             return;
         }
@@ -80,7 +80,7 @@ public class UsuarioCN {
     // INSERTAR USUARIO
     public static void insertarUsuario() {
         Connection conn = Io.getConexion();
-        if (conn==null) {
+        if (conn == null) {
             Io.sop("Sin Conexión");
             return;
         }
@@ -191,7 +191,7 @@ public class UsuarioCN {
         }
         String vDniBorrado = Io
                 .leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo dni del usuario:  ");
-        Io.sop("Voy a borrar el "+vDniBorrado);
+        Io.sop("Voy a borrar el " + vDniBorrado);
         if (UsuarioCN.borrarDato(conn, vDniBorrado)) {
             System.out.println("Usuario borrado correctamente");
         } else {
@@ -214,7 +214,7 @@ public class UsuarioCN {
         }
     }
 
-    //// USUARIO PAGINADO
+    /// / USUARIO PAGINADO
 
     public static void consultarUsuarioPaginado(Connection conn, int nRegPag, int nPag) {
         /*
@@ -291,7 +291,7 @@ public class UsuarioCN {
 
     }
 
-    //// EJECUTAR SELECT
+    /// / EJECUTAR SELECT
 
     public static ResultSet ejecutarSelect(Connection conn, String sql) {
         PreparedStatement st;
@@ -453,7 +453,7 @@ public class UsuarioCN {
 
     }
 
-    //// Modificar dato
+    /// / Modificar dato
     public static boolean ejecutarUpdateCampo(Connection conn, String idAntiguo, String campo, String nuevoValor) {
         String sql = "UPDATE usuarios SET " + campo + " = '" + nuevoValor + "' WHERE dni = '" + idAntiguo + "'";
         try {
@@ -468,13 +468,13 @@ public class UsuarioCN {
     }
 
 
-
     public static void main(String[] args) {
 
         menuUsuario();
 
     }
 }
+
 
 
 
