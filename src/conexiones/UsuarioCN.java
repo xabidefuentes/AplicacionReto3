@@ -42,6 +42,27 @@ public class UsuarioCN {
  while (opcion>0 );
 }
 
+///Metodo para validar el telefono
+    public static boolean validarTelefono(String telefono) {
+        if (telefono == null || telefono.length() != 9) {
+            return false;
+        }
+        return telefono.matches("\\d{9}"); // Verifica que sean exactamente 9 dígitos numéricos
+    }
+
+  // Metodo para ejecutar la validacion del telefono
+  public static String ejecutarValidarTelefono(Connection conn) {
+    String vTelefono;
+    do {
+        vTelefono = Io.leerString("Dime el telefono del usuario: ");
+        if (!esCorreoValido(vTelefono)) {
+            Io.sop("Telefono no valido. Asegúrate de que tenga formato correcto de 9 números");
+        }
+    } while (!esCorreoValido(vTelefono));
+    return vTelefono;
+}
+
+
     // Metodo para borrar usuario
     public static void borrarUsuario() {
         Connection conn = Io.getConexion();
@@ -89,8 +110,8 @@ public class UsuarioCN {
              return;
         }
         int randomPassword = (int) (Math.random() * 9000) + 1000; // genera número aleatorio entre 1000 y 9999
-        int cambios = 0, vTelefono;
-        String vNombre, vDni, vEmail;
+        int cambios = 0 ;
+        String vNombre, vDni, vEmail,vTelefono;
 
         vNombre = Io.leerString("Dime el nombre y apellido del usuario: ");
         vNombre = vNombre.toUpperCase();
@@ -99,7 +120,8 @@ public class UsuarioCN {
         vDni = Io.ejecutarValidarDni(conn);
         // Validación del email
         vEmail = validarEmail(conn);
-        vTelefono = Io.leerInt("Dime el telefono del usuario: ");
+        vTelefono = ejecutarValidarTelefono(conn);     
+            //  Io.leerInt("Dime el telefono del usuario: ");
         String sql = "INSERT INTO usuarios (dni, nombre, telefono, email, password, penalizacion, fecha_inicio_penalizacion, fecha_fin_penalizacion) "
                 +
                 "VALUES ('" + vDni + "', '" + vNombre + "', '" + vTelefono + "', '" + vEmail + "', '" + randomPassword
@@ -419,7 +441,8 @@ public class UsuarioCN {
                 break;
             case '3':
                 campo = "Telefono";
-                nuevoValor = Io.leerString("Introduce el nuevo telefono");
+                nuevoValor = ejecutarValidarTelefono(conn);
+                // nuevoValor = Io.leerString("Introduce el nuevo telefono");
                 break;
             case '4':
                 campo = "email";
