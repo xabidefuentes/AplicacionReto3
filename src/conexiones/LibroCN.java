@@ -292,7 +292,7 @@ public class LibroCN {
             offset = (npag - 1) * nRegpag;
             sql = "SELECT * FROM libros LIMIT " + nRegpag + " OFFSET " + offset;
             Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + npag + "                                 ║");
+            Io.sop("║                            Listado LIBROS  |  PÁGINA: " + npag + "                                ║");
             Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
             Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
             Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");

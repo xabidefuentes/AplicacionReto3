@@ -10,7 +10,7 @@ public class PrestamoCN {
     public static void añadirPrestamo() {
         Connection conn = getConexion();
         if (conn == null) {
-            sop("❌ Error al conectar a la base de datos.");
+            sop("Error al conectar a la base de datos.");
             Prestamo.menuPrestamo();
         }
         String dni;
@@ -22,10 +22,10 @@ public class PrestamoCN {
             dni = leerString("Ingresa el DNI del usuario: ");
             dni = dni.toUpperCase();
             if (!comprobarExistencia(conn, "usuarios", "dni", dni)) {
-                sop("❌ No existe ningún usuario con ese DNI.");
+                sop("No existe ningún usuario con ese DNI.");
             }
             if (!validarDni(dni)) {
-                sop("❌ DNI inválido. Debe tener 8 dígitos y una letra al final.");
+                sop("DNI inválido. Debe tener 8 dígitos y una letra al final.");
             }
         } while (!comprobarExistencia(conn, "usuarios", "dni", dni));
 
@@ -33,7 +33,7 @@ public class PrestamoCN {
         do {
             fechaPrestamo = leerString("Ingresa la fecha de préstamo (YYYY-MM-DD): ");
             if (!esFechaValida(fechaPrestamo)) {
-                sop("❌ Fecha inválida. Debe ser en el formato YYYY-MM-DD.");
+                sop("Fecha inválida. Debe ser en el formato YYYY-MM-DD.");
             }
         } while (!esFechaValida(fechaPrestamo));
 
@@ -42,17 +42,17 @@ public class PrestamoCN {
         do {
             nombreLibro = leerString("Ingresa el nombre del libro: ");
             if (!comprobarExistencia(conn, "libros", "titulo", nombreLibro)) {
-                sop("❌ No existe ningún libro con ese título.");
+                sop("No existe ningún libro con ese título.");
                 idEjemplar = null;
                 continue;
             }
             idEjemplar = obtenerIdEjemplarPorNombre(conn, nombreLibro);
             if (idEjemplar == null) {
-                sop("❌ No hay ejemplares disponibles para ese libro.");
+                sop("No hay ejemplares disponibles para ese libro.");
                 continue;
             }
             if (buscarPrestamoPorEjemplar(conn, idEjemplar) > 0) {
-                sop("❌ El ejemplar ya está prestado. Elige otro.");
+                sop("El ejemplar ya está prestado. Elige otro.");
                 idEjemplar = null;
             }
 
@@ -62,16 +62,16 @@ public class PrestamoCN {
         do {
             dniEmpleado = leerString("Ingresa el DNI del empleado: ");
             if (!comprobarExistencia(conn, "empleados", "dni", dniEmpleado)) {
-                sop("❌ No existe ningún empleado con ese DNI.");
+                sop("No existe ningún empleado con ese DNI.");
             }
         } while (!comprobarExistencia(conn, "empleados", "dni", dniEmpleado));
 
         // Comprobar si el ejemplar ya está prestado
         if (ejecutarInsert(conn, dni.toUpperCase(), parsearFecha(fechaPrestamo), idEjemplar, dniEmpleado.toUpperCase())) {
-            sop("✅ Préstamo añadido correctamente.");
+            sop("Préstamo añadido correctamente.");
             cambiarEstadoEjemplar(conn, idEjemplar);
         } else {
-            sop("❌ Error al añadir el préstamo.");
+            sop("Error al añadir el préstamo.");
         }
         Prestamo.menuPrestamo();
     }
@@ -106,7 +106,7 @@ public class PrestamoCN {
                 id++;
             }
         } catch (SQLException e) {
-            sop("⚠️ Error al generar ID: " + e.getMessage());
+            sop("Error al generar ID: " + e.getMessage());
             return -1;
         }
         return 0;
@@ -114,7 +114,7 @@ public class PrestamoCN {
     public static void borrarPrestamo(){
         Connection conn = getConexion();
         if (conn == null) {
-            sop("❌ Error al conectar a la base de datos.");
+            sop("Error al conectar a la base de datos.");
             Prestamo.menuPrestamo();
         }
         consultaTablaDelete(conn, 5, 1);
@@ -255,7 +255,7 @@ public class PrestamoCN {
         }
         String idAntiguo = leerString("Introduce de nuevo el ID del préstamo que quieres modificar: ");
         if (!comprobarExistencia(conn, "prestamos", "id_prestamo", idAntiguo)) {
-            sop("❌ No existe ningún préstamo con ese ID.");
+            sop("No existe ningún préstamo con ese ID.");
             return;
         }
         sop("¿Qué campo del préstamo " + idAntiguo + " deseas modificar?");
@@ -304,9 +304,9 @@ public class PrestamoCN {
 
         if (!campo.equals("")) {
             if (ejecutarUpdateCampo(conn, idAntiguo, campo, nuevoValor)) {
-                sop("✅ Préstamo con ID " + idAntiguo + " modificado correctamente.");
+                sop("Préstamo con ID " + idAntiguo + " modificado correctamente.");
             } else {
-                sop("❌ Error al modificar el préstamo.");
+                sop("Error al modificar el préstamo.");
             }
         }
         Prestamo.menuPrestamo();
@@ -318,7 +318,7 @@ public class PrestamoCN {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
-            sop("❌ Error con la query: " + sql);
+            sop("Error con la query: " + sql);
             e.printStackTrace();
             return false;
         }
@@ -387,11 +387,11 @@ public class PrestamoCN {
         }
         swIdSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ID del préstamo: ");
         if (!comprobarExistencia(conn, "prestamos", "id_prestamo", swIdSeleccionado)) {
-            sop("❌ No existe ningún préstamo con ese ID.");
+            sop("No existe ningún préstamo con ese ID.");
             consultaTablaDelete(conn, 5, 1);
         }
         ejecutarDelete(conn, swIdSeleccionado);
-        sop("✅ Préstamo con ID: " + swIdSeleccionado + " eliminado correctamente.");
+        sop("Préstamo con ID: " + swIdSeleccionado + " eliminado correctamente.");
         Prestamo.menuPrestamo();
     }
 
