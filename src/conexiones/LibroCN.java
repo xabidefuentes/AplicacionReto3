@@ -7,15 +7,15 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 import Io.*;
-import conexiones.*;
-import principal.Libro;
 
 
 public class LibroCN {
     //FUNCIONES
     //Menu usuario
     public static void menuLibro(){
-    Io.sop("***********************************************************************");
+        int opcion;
+        do{
+            Io.sop("***********************************************************************");
             Io.sop("********************  GESTION DE LIBROS  ****************");
             Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
             Io.sop("**************************  DE MUSKIZ  ************************************");
@@ -23,37 +23,43 @@ public class LibroCN {
             Io.sop("2. BORRAR LIBRO");
             Io.sop("3. MODIFICAR LIBRO");
             Io.sop("4. SALIR");
-            int opcion = Io.leerInt("Selecciona una opción: ");
+             opcion = Io.leerInt("Selecciona una opción: ");
             switch (opcion) {
                 case 1:
-                    LibroCN.insertarLibro();
+                    insertarLibro();
                     break;
                 case 2:
-                    LibroCN.borrarLibro();
+                   borrarLibro();
                     break;
                 case 3:
-                    LibroCN.modificarLibro();
+                    modificarLibro();
                     break;
                 case 4:
-                Io.sop("Saliendo...");
-                    break;
+                Io.sop("Saliendo.. Hasta pronto");
+                return;
                 default:
                     Io.sop("Opción no válida. Intenta otra vez.");
             }
-        }
+    
+        }while (opcion>0 );
+    }
 
         public static void borrarLibro(){
             Connection conn = Io.getConexion();
             if (conn==null) { Io.sop("sin conexión");return;}
             Io.sop("Conexión correcta");
-            consultaTablaDeleteLibro(conn, 10, 1);
+            consultaTablaDeleteLibro(conn, 28, 1);
             Io.cerrarConexion(conn);
         }
     
     
         public static void modificarLibro(){
             Connection conn = Io.getConexion();
-            modificarLibroConTabla(conn, 10, 1);
+             if (conn==null) { 
+            Io.sop("sin conexión");
+            return;
+        }
+            modificarLibroConTabla(conn, 28, 1);
             Io.cerrarConexion(conn);
         }
         //Funciones
@@ -229,15 +235,21 @@ public class LibroCN {
         Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
         int opc = Io.leerInt("Elige una opcion");
         switch (opc){
-            case '+' : nPag++;
-                break;
-            case '-' : nPag--;
-                if(nPag <=0){
-                    nPag = 1;
-                }
-                break;
-            case 'x' : salir=true;
-                break;
+            case '+':
+                    nPag++;
+                    break;
+                case '-':
+                    nPag--;
+                    if (nPag <= 0) {
+                        nPag = 1;
+                    }
+                    break;
+                case 'x':
+                    salir = true;
+                    break;
+                default:
+                    salir = true;
+                    break;
         }
     }
     
@@ -310,7 +322,7 @@ public class LibroCN {
             Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
             Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
             Io.sop("Muevete por la tabla y selecciona el isbn del libro que deseas eliminar: ");
-            char opc = leerCaracter();
+            char opc = Io.leerCaracter();
             switch (opc) {
                 case '+':
                     npag++;
@@ -363,18 +375,7 @@ public class LibroCN {
         return false;
     }
     }
-    public static char leerCaracter(){
-        Scanner sc = new Scanner(System.in);
-        char letra = ' ';
-        String cadena = "";
-        cadena = sc.nextLine();
-        if (cadena.isEmpty()) {
-            letra = 13; // ENTER
-        } else {
-            letra = cadena.charAt(0);
-        }
-        return letra;
-    }
+    
 
     public static void modificarLibroConTabla(Connection conn, int nRegPag, int nPag) {
         Statement stm = null;
@@ -508,12 +509,42 @@ public class LibroCN {
        
         
         
-        public static void main(String[] args) {
+      /*   public static void main(String[] args) {
     
             menuLibro();
         
         
-        }
-        
-       
+        }*/
+        public static void main(String[] args) {
+            int opcion;
+        do{
+            Io.sop("***********************************************************************");
+            Io.sop("********************  GESTION DE LIBROS  ****************");
+            Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
+            Io.sop("**************************  DE MUSKIZ  ************************************");
+            Io.sop("1. AGREGAR LIBRO");
+            Io.sop("2. BORRAR LIBRO");
+            Io.sop("3. MODIFICAR LIBRO");
+            Io.sop("4. SALIR");
+             opcion = Io.leerInt("Selecciona una opción: ");
+            switch (opcion) {
+                case 1:
+                    insertarLibro();
+                    break;
+                case 2:
+                   borrarLibro();
+                    break;
+                case 3:
+                    modificarLibro();
+                    break;
+                case 4:
+                Io.sop("Saliendo.. Hasta pronto");
+                return;
+                default:
+                    Io.sop("Opción no válida. Intenta otra vez.");
+            }
+    
+        }while (opcion>0 );
+    
+    }
 }
