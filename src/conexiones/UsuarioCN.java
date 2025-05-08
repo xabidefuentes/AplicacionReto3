@@ -78,6 +78,24 @@ public class UsuarioCN {
         } while (!esCorreoValido(vEmail));
         return vEmail;
     }
+    public static boolean validarTelefono(String telefono) {
+        if (telefono == null || telefono.length() != 9) {
+            return false;
+        }
+        return telefono.matches("\\d{9}"); // Verifica que sean exactamente 9 dígitos numéricos
+    }
+
+  // Metodo para ejecutar la validacion del telefono
+  public static String ejecutarValidarTelefono(Connection conn) {
+    String vTelefono;
+    do {
+        vTelefono = Io.leerString("Dime el telefono del usuario: ");
+        if (!esCorreoValido(vTelefono)) {
+            Io.sop("Telefono no valido. Asegúrate de que tenga formato correcto de 9 números");
+        }
+    } while (!esCorreoValido(vTelefono));
+    return vTelefono;
+}
 
     // INSERTAR USUARIO
     public static void insertarUsuario() {
