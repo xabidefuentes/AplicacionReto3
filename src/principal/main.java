@@ -3,13 +3,17 @@ package principal;
 import Io.*;
 import conexiones.AutorCN;
 import conexiones.LibroCN;
+import conexiones.PrestamoCN;
 import conexiones.UsuarioCN;
+
+import java.sql.Connection;
 
 public class main {
     public static void main(String[] args) {
        menuPrincipal();
     }
     public static void menuPrincipal() {
+        Connection conn = Io.getConexion();
         Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
         Io.sop("║              BIENVENIDO A LA BIBLIOTECA MUNICIPAL DE MUSKIZ           ║");
         Io.sop("║                           " + Io.DTOC() + "                           ║");
@@ -39,7 +43,7 @@ public class main {
                 Busquedas.menuBusquedas();
                 break;
             case 6:
-                Io.sop("Saliendo...");
+                Io.sop("Gracias por usar el sistema. ¡Hasta luego!");
                 return;
             default:
                 Io.sop("Opción no válida. Intenta otra vez.");

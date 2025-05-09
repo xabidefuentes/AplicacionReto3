@@ -255,29 +255,22 @@ public static String ejecutarValidarTelefono(Connection conn) {
     //// USUARIO PAGINADO
 
     public static void consultarUsuarioPaginado(Connection conn, int nRegPag, int nPag) {
-        /*
-         * Realizamos la consulta sql para mostrar todos los datos de la tabla, Se
-         * mostraran estudiante de
-         * 10 en 10 (nRegPag), los que correspondean a la pagina nPag
-         * offset es el desplazamiento dentro del fichero
-         * limit : es el numero de registros que voy a leer
-         * con + y - avanzare una pagina. La primera pagina sera la 1
-         * al pulsar ESC saldre de la consulta
-         */
         Statement stm = null;
         ResultSet rs = null;
-        int offset, cont;
-        String vDni, vNom, vEmail, sql, vTel, vPasword, vPen, vFechaFin, vFechaIni, vTelefono;
         boolean salir = false;
-        while (!salir) {// Control de las teclas +, -, ESC
+        int offset;
+        String vDni, vNom, vEmail, sql, vPasword, vPen, vFechaIni, vFechaFin, vTelefono;
+        while (!salir) {
             offset = (nPag - 1) * nRegPag;
             sql = " select * from usuarios limit " + nRegPag + " offset " + offset + " ";
             Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                                                           LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                    ║");
+            Io.sop("║                                                           MODIFICACIÓN DE USUARIOS  |  PÁGINA: " + nPag + "                                                    ║");
             Io.sop("╠═════════╦════════════════════════╦═══════════════════════════════╦═════════════════╦═════════════════╦════════════════╦════════════════╦════════════╣");
             Io.sop("║   DNI   ║         NOMBRE         ║             EMAIL             ║     TELÉFONO    ║    PASSWORD     ║  PENALIZACIÓN  ║  FECHA INICIO  ║ FECHA FIN  ║");
             Io.sop("╚═════════╩════════════════════════╩═══════════════════════════════╩═════════════════╩═════════════════╩════════════════╩════════════════╩════════════╝");
             try {
+                stm = conn.createStatement();
+                rs = stm.executeQuery(sql);
                 while (rs.next()) {
                     vDni = rs.getString("dni");
                     vDni = padl(vDni, 9);
@@ -300,20 +293,23 @@ public static String ejecutarValidarTelefono(Connection conn) {
                             + vFechaIni + "|" + vFechaFin);
 
                 }
+
             } catch (SQLException e) {
-                System.out.println("Problema al ejecutar sql " + sql + e.getErrorCode() + " " + e.getMessage());
+                e.printStackTrace();
             }
             Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
             Io.sop("║ [+] Página Siguiente                                              [-] Página Anterior                                                    [X] Salir  ║");
             Io.sop("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
-            int opc = Io.leerInt("Muevete por la tabla.");
+            Io.sop("Muevete por la tabla y selecciona el DNI del usuario: ");
+            char opc = Io.leerCaracter();
             switch (opc) {
                 case '+':
                     nPag++;
                     break;
                 case '-':
-                    nPag--;
-                    if (nPag <= 0) {
+                    if (nPag > 1) {
+                        nPag--;
+                    } else {
                         nPag = 1;
                     }
                     break;
@@ -426,8 +422,7 @@ public static String ejecutarValidarTelefono(Connection conn) {
                     break;
             }
         }
-        String vModificar = Io
-                .leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo dni del usuario:  ");
+        String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo dni del usuario:  ");
         if (!Io.comprobarExistencia(conn, "usuarios", "dni", vModificar)) {
             Io.sop(" No existe ningún usuario con ese dni.");
             return;
