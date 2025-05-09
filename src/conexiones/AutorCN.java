@@ -1,5 +1,6 @@
 package conexiones;
 import static Io.Io.comprobarExistencia;
+import static Io.Io.esFechaValida;
 import static Io.Io.getConexion;
 
 import java.sql.Connection;
@@ -24,10 +25,10 @@ public class AutorCN {
         Io.sop("*********************  DE LA BIBLIOTECA MUNICIPAL *********************");
         Io.sop("****************************   DE MUSKIZ  ****************************");
         Io.sop("***********************************************************************");
-        Io.sop("1. ➕AGREGAR AUTOR");
-        Io.sop("2. ➖BORRAR AUTOR");
-        Io.sop("3. ✏️MODIFICAR AUTOR");
-        Io.sop("4. 🚶‍♂️SALIR");
+        Io.sop("1. AGREGAR AUTOR");
+        Io.sop("2. BORRAR AUTOR");
+        Io.sop("3. MODIFICAR AUTOR");
+        Io.sop("4. SALIR");
         int opcion = Io.leerInt("Selecciona una opción: ");
         switch (opcion) {
             case 1:
@@ -50,59 +51,58 @@ public class AutorCN {
     //INSERTAR AUTOR//
 
     public static int insertarAutor(){
-        Connection conn = Io.getConexion();
-        int cambios = 0;
-        int id_autor;
-        String nombre,apellido,nacionalidad;
-        LocalDate fechaNac;
-        do{
-            nombre = Io.leerString("Dime el nombre del autor: ");//Leemos del teclado
-            nombre = nombre.toUpperCase();
-            if (!Io.comprobarExistencia(conn, "autores", "nombre", nombre)){
-                Io.sop("No existe ningún autor con ese nombre.");
-            }
-        }while(!Io.comprobarExistencia(conn, "autores", "nombre", nombre));
-       
-        do{
-            apellido = Io.leerString("Dime el apellido del autor: ");//Leemos del teclado
-            apellido = apellido.toUpperCase();
-            if (!Io.comprobarExistencia(conn, "autores", "apellidos", apellido)) {
-                Io.sop("No existe ningún autor con ese apellido.");
-            }
-        }while(!Io.comprobarExistencia(conn, "autores", "apellidos", apellido));
-        
-        do{
-            nacionalidad = Io.leerString("Dime de donde es/era el autor: ");//Leemos del teclado
-            nacionalidad = nacionalidad.toUpperCase();
-            if (!Io.comprobarExistencia(conn, "autores", "nacionalidad", nacionalidad)) {
-                Io.sop("No existe ningún autor con esa nacionalidad.");
-            }
-        }while(!Io.comprobarExistencia(conn, "autores", "nacionalidad", nacionalidad));
-        
-        do {
-            fechaNac = Io.leerDate("Dime cuando nació el autor: ");//Leemos del teclado
-            if (!Io.comprobarExistenciaLocalDate(conn, "autores", "fecha_nacimiento", fechaNac)) {
-                Io.sop("Ningún autor ha nacido en esa fecha.");
-            }
-        } while (!Io.comprobarExistenciaLocalDate(conn, "autores", "fecha_nacimiento", fechaNac));
-        
-        //Comprobacion para ver si el id_autor esta repetido
-        do {
-            id_autor = Io.leerInt("Dime el ID del autor que quieras ponerle: ");
-            if (Io.comprobarExistenciaInt(conn, "autores", "id_autor", id_autor)) {
-                Io.sop("ID ya existente, introduce otro");
-            }
-        } while (Io.comprobarExistenciaInt(conn, "autores", "id_autor", id_autor));
 
-        String sql = "INSERT INTO autores (id_autor, nombre, apellidos, nacionalidad, fecha_nacimiento) " +
-        "VALUES ('" + id_autor + "', '" + nombre + "', '" + apellido + "', '" + nacionalidad + "', '" + fechaNac + "')";       
+        Connection conn =Io.getConexion();
+
+        int ncambios = 0;
+        String vNombre,vApellidos,vNacionalidad,vFechaNac;
+        
+        System.out.println("Comenzamos a introducir los datos");
+
+        do {
+            vNombre = Io.leerString("Dime el nombre del autor: ");
+            if (vNombre.equals("")) {
+                Io.sop("El nombre no puede estar vacío.");
+            }
+        } while (vNombre.equals(""));  
+
+        do {
+            vApellidos = Io.leerString("Dime el apellido del autor: ");
+            if (vApellidos.equals("")) {
+                Io.sop("El apellido no puede estar vacío.");
+            }
+        } while (vApellidos.equals(""));
+
+        do {
+            vNacionalidad = Io.leerString("Dime la nacionalidad del autor: ");
+            if (vNacionalidad.equals("")) {
+                Io.sop("La nacionalidad no puede estar vacía.");
+            }
+        } while (vNacionalidad.equals(""));
+
+        do {
+            vFechaNac = Io.leerString("¿Cuándo nació el autor?(YYYY-MM-DD): "); 
+            if (!Io.esFechaValida(vFechaNac)) {
+                Io.sop("La fecha de nacimiento tiene que ser válida.");
+            }
+        } while (!Io.esFechaValida(vFechaNac));
+        // Generar id_autor único (del 1 al 30)
+        int id_autor;
+        boolean existe;
+        do {
+            id_autor = (int)(Math.random() * 30) + 1; // valores del 1 al 30
+            existe = Io.comprobarExistenciaInt(conn, "autores", "id_autor", id_autor);
+        } while (existe);
+        String sql = "insert into autores (id_autor, nombre, apellidos, nacionalidad, fecha_nacimiento) values ('"+id_autor+"','"+vNombre+"','"+vApellidos+"','"+ vNacionalidad+"','"+vFechaNac+"')";  
+
+
         try{
-            Statement st = conn.createStatement();   // es para que se agrege a la bbdd
-            cambios = st.executeUpdate(sql);
-            if(cambios == 0){
-                System.out.println("No se ha añadido el registro");
-            }else{
-                System.out.println("Registro añadido");
+            Statement st = conn.createStatement();   
+            ncambios = st.executeUpdate(sql);
+            if (ncambios > 0) {
+                System.out.println("Autor registrado correctamente");
+            } else {
+                System.out.println("No se ha añadido el autor.");
             }
         }
         catch(SQLException e){
@@ -110,7 +110,10 @@ public class AutorCN {
             System.out.println(e.getErrorCode());
             System.out.println(sql);
         }
-        return cambios;
+
+        menuAutores();
+        return ncambios;
+
     }
 
     // Metodo para borrar usuario
@@ -128,11 +131,12 @@ public class AutorCN {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
+        nRegPag = 5;
         int offset;
         String vID, vNom, vApe, vFN, vNac;
         while (!salir) {
-            offset = (nPag - 1) * nRegPag;
-            String sql = " select * from usuarios limit " + nRegPag + " offset " + offset + " ";
+            offset = ( nPag -1)* nRegPag;
+            String sql = " select * from autores limit " +nRegPag+ " offset "+ offset + " ";
             Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
             Io.sop(  "║                                         LISTADO DE AUTORES  |  PÁGINA: " + nPag + "                                                                 ║");
             Io.sop("╠══════════════╦════════════════════════╦═══════════════════════════╦═══════════════════════════╦═════════════════════════════════════════════════════╣");
@@ -190,6 +194,7 @@ public class AutorCN {
         } else {
             System.out.println("Autor no se ha podido borrar");
         }
+        menuAutores();
     }
 
     // Metodo para borrar el dato
@@ -213,6 +218,7 @@ public class AutorCN {
     Statement stm = null;
     ResultSet rs = null;
     boolean salir = false;
+    nRegPag = 5;
     int offset;
     String vID, vNom, vApe, vFN, vNac;
     while (!salir) {
@@ -242,7 +248,6 @@ public class AutorCN {
 
         } catch (SQLException e) {
             Io.sop("problemas al conectar.");
-            //e.printStackTrace();
         }
         Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
         Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
@@ -271,6 +276,7 @@ public class AutorCN {
      String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo el id_autor:  ");
      if (!Io.comprobarExistencia(conn, "autores", "id_autor", vModificar)) {
             Io.sop(" No existe ningún autor con ese ID.");
+            menuAutores();
             return;
         }
         Io.sop("¿Qué campo del usuario  deseas modificar?");
@@ -290,19 +296,19 @@ public class AutorCN {
                 break;
             case '2':
                 campo = "nombre";
-                nuevoValor = Io.leerString("Introduce el nuevo nombre");
+                nuevoValor = Io.leerString("Introduce el nuevo nombre: ");
                 break;
             case '3':
                 campo = "apellidos";
-                nuevoValor =Io.leerString("Introduce el nuevo apellido");
+                nuevoValor =Io.leerString("Introduce el nuevo apellido: ");
                 break;
             case '4':
                 campo = "fecha_nacimiento";
-                nuevoValor = Io.leerString("Introduce la nuevo fecha nacimiento");
+                nuevoValor = Io.leerString("Introduce la nuevo fecha nacimiento: ");
                 break;
             case '5':
                 campo = "nacionalidad";
-                nuevoValor = Io.leerString("Introduce la nueva nacionalidad");
+                nuevoValor = Io.leerString("Introduce la nueva nacionalidad: ");
                 break;
             case '6':
                 salir = true;

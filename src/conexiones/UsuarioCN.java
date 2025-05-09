@@ -1,10 +1,7 @@
 package conexiones;
 
 import Io.Io;
-
 import java.sql.*;
-
-import static Io.Io.sop;
 
 public class UsuarioCN {
     // FUNCIONES
@@ -52,6 +49,24 @@ public class UsuarioCN {
         Io.cerrarConexion(conn);
     }
 
+    //Metodo para comprobar si se mete si/ no en la penalizacion
+    public static boolean comprobarPenalizacion(String palabra) {
+        return palabra.equalsIgnoreCase("si") || palabra.equalsIgnoreCase("no");// Ignore case es para que no tenga en cuenta mayusculas de minusculas
+    }
+   
+//Metodo para ejecutar el metodo anterior de comprobar penalizacion
+    public static String ejecutarComprobarPenalizacion(Connection conn) {
+        String vPalabra;
+        do {
+            vPalabra = Io.leerString("Dime si tiene o no penalizacion ");
+            if (!comprobarPenalizacion(vPalabra)) {
+                System.out.println("No valido, solo admite si/no");
+            }
+        } while (!comprobarPenalizacion(vPalabra));
+        return vPalabra;
+    }
+
+
     public static void modificarUsuario() {
         Connection conn = Io.getConexion();
         if (conn==null) {
@@ -78,7 +93,24 @@ public class UsuarioCN {
         } while (!esCorreoValido(vEmail));
         return vEmail;
     }
+     //Metodo para validar telefono
+     public static boolean validarTelefono(String telefono) {
+         if (telefono == null) return false;
+         telefono = telefono.trim(); // elimina espacios en blanco
+         return telefono.matches("\\d{9}");
+     }
 
+    
+public static String ejecutarValidarTelefono(Connection conn) {
+    String vTelefono;
+    do {
+        vTelefono = Io.leerString("Dime el telefono del usuario: ");
+        if (!validarTelefono(vTelefono)) {
+            System.out.println("Teléfono no válido. Debe contener exactamente 9 dígitos numéricos.");
+        }
+    } while (!validarTelefono(vTelefono));
+    return vTelefono;
+}
     // INSERTAR USUARIO
     public static void insertarUsuario() {
         Connection conn = Io.getConexion();
@@ -87,16 +119,20 @@ public class UsuarioCN {
             return;
         }
         int randomPassword = (int) (Math.random() * 9000) + 1000; // genera número aleatorio entre 1000 y 9999
-        int cambios = 0, vTelefono;
-        String vNombre, vDni, vEmail;
-
-        vNombre = Io.leerString("Ingresa el nombre y apellido del usuario: ");
-
+        int cambios = 0;
+        String vNombre, vDni, vEmail = null, vTelefono;
+        //Probamos que no nos metan el nombre vacio
+        do {
+            vNombre = Io.leerString("Introduce tu nombre: ").trim();// .trim quita los espacios en blanco
+            if (vNombre.isEmpty()) { //si el nombre esta vacio
+                System.out.println("El nombre no puede estar vacío. Inténtalo de nuevo.");
+            }
+        } while (vNombre.isEmpty());
         // Comprobación para ver si el DNI está repetido y si es correcto
         vDni = Io.ejecutarValidarDni(conn);
         // Validación del email
-        vEmail = validarEmail(conn);
-        vTelefono = Io.leerInt("Ingresa el teléfono del usuario: ");
+        vTelefono = ejecutarValidarTelefono(conn);
+        // vTelefono = Io.leerInt("Ingresa el teléfono del usuario: ");
         String sql = "INSERT INTO usuarios (dni, nombre, telefono, email, password, penalizacion, fecha_inicio_penalizacion, fecha_fin_penalizacion) "
                 +
                 "VALUES ('" + vDni + "', '" + vNombre + "', '" + vTelefono + "', '" + vEmail + "', '" + randomPassword
@@ -420,7 +456,7 @@ public class UsuarioCN {
                 break;
             case '3':
                 campo = "Telefono";
-                nuevoValor = Io.leerString("Introduce el nuevo telefono");
+                nuevoValor = ejecutarValidarTelefono(conn);
                 break;
             case '4':
                 campo = "email";
@@ -428,7 +464,7 @@ public class UsuarioCN {
                 break;
             case '5':
                 campo = "penalizacion";
-                nuevoValor = Io.leerString("Introduce la nueva penalizacion Si/No: ");
+                nuevoValor = ejecutarComprobarPenalizacion(conn);
                 break;
             case '6':
                 campo = "fecha_inicio_penalizacion";

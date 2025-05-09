@@ -48,7 +48,7 @@ public class LibroCN {
             Connection conn = Io.getConexion();
             if (conn==null) { Io.sop("sin conexión");return;}
             Io.sop("Conexión correcta");
-            consultaTablaDeleteLibro(conn, 28, 1);
+            consultaTablaDeleteLibro(conn, 5, 1);
             Io.cerrarConexion(conn);
         }
     
@@ -59,7 +59,7 @@ public class LibroCN {
             Io.sop("sin conexión");
             return;
         }
-            modificarLibroConTabla(conn, 28, 1);
+            modificarLibroConTabla(conn, 5, 1);
             Io.cerrarConexion(conn);
         }
         //Funciones
@@ -76,15 +76,27 @@ public class LibroCN {
             } while (vTitulo.equals("")|| Io.comprobarExistencia(conn, "libros", "titulo", vTitulo));
             return vTitulo;
         }
-
-        public static String validarISBN (Connection conn){
+        public static String validarISBN(Connection conn) {
             String vISBN;
-            do{
+            boolean valido;
+        
+            do {
                 vISBN = Io.leerString("Dime el ISBN del libro:");
-                if (Io.comprobarExistencia(conn, "libros", "isbn", vISBN)) {
-                    Io.sop("El libro ya existe, vuelve a introducirlo");
+                valido = true;
+        
+                if (vISBN.equals("")) {
+                    Io.sop("El ISBN no puede estar vacío.");
+                    valido = false;
+                } else if (!vISBN.matches("\\d{4}")) {
+                    Io.sop("El ISBN debe tener exactamente 4 números.");
+                    valido = false;
+                } else if (Io.comprobarExistencia(conn, "libros", "isbn", vISBN)) {
+                    Io.sop("El libro ya existe, vuelve a introducirlo.");
+                    valido = false;
                 }
-            } while (Io.comprobarExistencia(conn, "libros", "isbn", vISBN));
+        
+            } while (!valido);
+        
             return vISBN;
         }
 
@@ -94,26 +106,41 @@ public class LibroCN {
             }
             return true;
         }
-        public static int ejecutarano (Connection conn){
-            int ano;
+       
+        public static int ejecutarAno(Connection conn){
+            int ano = 0;
             boolean valido = false;
-            do{
-                ano = Io.leerInt("Dime el año de publicación del libro:");
-                if(!validarAnioPublicacion(ano)){
-                    Io.sop("Introduce un año válido");
-                }else{
-                    valido = true;
+            do {
+                String entrada = Io.leerString("Dime el año de publicación del libro:");
+                
+                if (entrada.trim().isEmpty()) {
+                    Io.sop("El año no puede estar vacío.");
+                } else {
+                    try {
+                        ano = Integer.parseInt(entrada);
+                        if (!validarAnioPublicacion(ano)) {
+                            Io.sop("Introduce un año válido.");
+                        } else {
+                            valido = true;
+                        }
+                    } catch (NumberFormatException e) {
+                        Io.sop("Debes introducir un número válido.");
+                    }
                 }
-            }while(!valido);
+            } while (!valido);
+        
             return ano;
         }
             //INSERTAR LIBROS
 
 
-    public static int insertarLibro(){
+    public static void insertarLibro(){
 
         Connection conn =Io.getConexion();
-
+        if (conn==null) {
+            Io.sop("Sin Conexión");
+            return;
+        }
         int ncambios = 0,numEjemplares=0,vAnioPublicacion;
         String vTitulo,vGenero,vEditorial,vISBN;
 
@@ -136,7 +163,7 @@ public class LibroCN {
         } while (vEditorial.equals(""));
 
         vISBN=validarISBN(conn);
-        vAnioPublicacion=ejecutarano(conn);
+        vAnioPublicacion=ejecutarAno(conn);
         do {
             numEjemplares = Io.leerInt("¿Cuántos ejemplares tiene este libro?:"); 
             if (numEjemplares < 0) {
@@ -161,7 +188,7 @@ public class LibroCN {
     
                 int insertados = 0;
                 while (insertados < numEjemplares) {
-                    int idAleatorio = (int) (Math.random() * 10); 
+                    int idAleatorio = (int) (Math.random() * 100); 
     
                     // Comprobamos si ya existe ese id
                     if (!Io.comprobarExistenciaInt(conn, "ejemplares", "id_ejemplar", idAleatorio)) {
@@ -182,9 +209,6 @@ public class LibroCN {
             System.out.println(e.getErrorCode());
             System.out.println(sql);
         }
-
-        menuLibro();
-        return ncambios;
 
     }
 
@@ -246,6 +270,7 @@ public class LibroCN {
                     break;
                 case 'x':
                     salir = true;
+                    menuLibro();
                     break;
                 default:
                     salir = true;
@@ -349,7 +374,6 @@ public class LibroCN {
         }else{
             System.out.println("El libro no se ha podido borrar");
         }
-        LibroCN.menuLibro();
     }
     //Metodo para borrar el isbn
     public static boolean borrarISBN(Connection conn,int swisbnSeleccionado){
@@ -464,15 +488,25 @@ public class LibroCN {
                     break;
                 case '3':
                     campo = "genero";
-                    nuevoValor =Io.leerString("Introduce el nuevo genero:");
+                    do {
+                        nuevoValor = Io.leerString("Dime el género del libro: ");
+                        if (nuevoValor.equals("")) {
+                            Io.sop("El género no puede estar vacío.");
+                        }
+                    } while (nuevoValor.equals(""));
                     break;
                 case '4':
                     campo = "editorial";
-                    nuevoValor = Io.leerString("Introduce la nueva editorial: ");
+                    do {
+                        nuevoValor = Io.leerString("Dime la editorial del libro: ");
+                        if (nuevoValor.equals("")) {
+                            Io.sop("La editorial no puede estar vacía.");
+                        }
+                    } while (nuevoValor.equals(""));
                     break;
                 case '5':
                     campo = "ano";
-                    nuevoValor = String.valueOf(ejecutarano(conn)); 
+                    nuevoValor = String.valueOf(ejecutarAno(conn)); 
                                        
                      break;
                 case '6':
@@ -509,42 +543,12 @@ public class LibroCN {
        
         
         
-      /*   public static void main(String[] args) {
+        public static void main(String[] args) {
     
             menuLibro();
         
         
-        }*/
-        public static void main(String[] args) {
-            int opcion;
-        do{
-            Io.sop("***********************************************************************");
-            Io.sop("********************  GESTION DE LIBROS  ****************");
-            Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
-            Io.sop("**************************  DE MUSKIZ  ************************************");
-            Io.sop("1. AGREGAR LIBRO");
-            Io.sop("2. BORRAR LIBRO");
-            Io.sop("3. MODIFICAR LIBRO");
-            Io.sop("4. SALIR");
-             opcion = Io.leerInt("Selecciona una opción: ");
-            switch (opcion) {
-                case 1:
-                    insertarLibro();
-                    break;
-                case 2:
-                   borrarLibro();
-                    break;
-                case 3:
-                    modificarLibro();
-                    break;
-                case 4:
-                Io.sop("Saliendo.. Hasta pronto");
-                return;
-                default:
-                    Io.sop("Opción no válida. Intenta otra vez.");
-            }
+        }
+       
     
-        }while (opcion>0 );
-    
-    }
 }
