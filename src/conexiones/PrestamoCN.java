@@ -19,7 +19,8 @@ public class PrestamoCN {
 
         // Comprobar si el usuario existe
         do {
-            dni = leerString("Ingresa el DNI del usuario: ");
+            UsuarioCN.consultarUsuarioPaginado(conn, 5, 1);
+            dni = leerString("Ingresa de nuevo el DNI del usuario: ");
             if (dni == null || dni.isEmpty()) {
                 sop("Saliendo...");
                 Prestamo.menuPrestamo();
@@ -283,35 +284,69 @@ public class PrestamoCN {
         sop("6. DNI del empleado");
         sop("7. Terminar");
 
-        char opc = leerCaracter();
+        int opc = leerInt("");
         String campo = "", nuevoValor = "";
 
         switch (opc) {
-            case '1':
+            case 1:
                 campo = "id_prestamo";
-                nuevoValor = leerString("Introduce el nuevo ID del préstamo: ");
+                do {
+                    nuevoValor = leerString("Introduce el nuevo ID del préstamo: ");
+                    if (comprobarExistencia(conn, "prestamos", "id_prestamo", nuevoValor)) {
+                        sop("Ya existe un préstamo con ese ID.");
+                    }
+                } while (comprobarExistencia(conn, "prestamos", "id_prestamo", nuevoValor));
                 break;
-            case '2':
+            case 2:
                 campo = "fecha_prestamo";
-                nuevoValor = leerDate("Introduce la nueva fecha de préstamo (YYYY-MM-DD): ").toString();
+                do {
+                    nuevoValor = leerString("Introduce la nueva fecha de préstamo (YYYY-MM-DD): ");
+                    if (!esFechaValida(nuevoValor)) {
+                        sop("Fecha inválida. Debe ser en el formato YYYY-MM-DD.");
+                    }
+                } while (!esFechaValida(nuevoValor));
                 break;
-            case '3':
+            case 3:
                 campo = "fecha_devolucion";
-                nuevoValor = leerDate("Introduce la nueva fecha de devolución (YYYY-MM-DD): ").toString();
+                do {
+                    nuevoValor = leerString("Introduce la nueva fecha de devolución (YYYY-MM-DD): ");
+                    if (!esFechaValida(nuevoValor)) {
+                        sop("Fecha inválida. Debe ser en el formato YYYY-MM-DD.");
+                    }
+                } while (!esFechaValida(nuevoValor));
                 break;
-            case '4':
+            case 4:
                 campo = "fk_dni_usuario";
-                nuevoValor = leerString("Introduce el nuevo DNI del usuario: ");
+                do {
+                    nuevoValor = leerString("Introduce el nuevo DNI del usuario: ");
+                    if (!Io.validarDni(nuevoValor)) {
+                        sop("DNI inválido. Debe tener 8 dígitos y una letra al final.");
+                    } else if (!comprobarExistencia(conn, "usuarios", "dni", nuevoValor)) {
+                        sop("No existe ningún usuario con ese DNI.");
+                    }
+                } while (!Io.validarDni(nuevoValor) || !comprobarExistencia(conn, "usuarios", "dni", nuevoValor));
                 break;
-            case '5':
+            case 5:
                 campo = "fk_id_ejemplar";
-                nuevoValor = leerString("Introduce el nuevo ID del ejemplar: ");
+                do {
+                    nuevoValor = leerString("Introduce el nuevo ID del ejemplar: ");
+                    if (!comprobarExistencia(conn, "ejemplares", "id_ejemplar", nuevoValor)) {
+                        sop("No existe ningún ejemplar con ese ID.");
+                    }
+                } while (!comprobarExistencia(conn, "ejemplares", "id_ejemplar", nuevoValor));
                 break;
-            case '6':
+            case 6:
                 campo = "fk_dni_empleado";
-                nuevoValor = leerString("Introduce el nuevo DNI del empleado: ");
+                do {
+                    nuevoValor = leerString("Introduce el nuevo DNI del empleado: ");
+                    if (!Io.validarDni(nuevoValor)) {
+                        sop("DNI inválido. Debe tener 8 dígitos y una letra al final.");
+                    } else if (!comprobarExistencia(conn, "empleados", "dni", nuevoValor)) {
+                        sop("No existe ningún empleado con ese DNI.");
+                    }
+                } while (!Io.validarDni(nuevoValor) || !comprobarExistencia(conn, "empleados", "dni", nuevoValor));
                 break;
-            case '7':
+            case 7:
                 salir = true;
                 break;
             default:

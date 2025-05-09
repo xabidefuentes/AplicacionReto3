@@ -36,7 +36,7 @@ public class Busquedas {
                     LibroCN.consultarLibroPaginado(conn, 5,1);
                     break;
                 case 3:
-                    // AUTORES
+                    UsuarioCN.consultarUsuarioPaginado(conn,5,1);
                     break;
                 case 4:
                    /* UsuarioCN.consultarUsuarioPaginado(conn, 5, 1);*/

@@ -252,9 +252,9 @@ public class LibroCN {
         offset = ( nPag -1)* nRegPag;
         sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
         Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
-        Io.sop(  "║                            Listado LIBROS  |  PÁGINA: " + nPag + "                                 ║");
+        Io.sop("║                            Listado LIBROS  |  PÁGINA: " + nPag + "                                ║");
         Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
-        Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+        Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACIÓN║      ISBN     ║    ID AUTOR   ║ ");
         Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
         rs = ejecutarSelect (conn,sql);
         System.out.println(" TABLA DE libros Pag : "+ nPag);
