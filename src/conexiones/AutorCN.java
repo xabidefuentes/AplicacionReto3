@@ -1,5 +1,6 @@
 package conexiones;
 import static Io.Io.comprobarExistencia;
+import static Io.Io.esFechaValida;
 import static Io.Io.getConexion;
 
 import java.sql.Connection;
@@ -55,7 +56,7 @@ public class AutorCN {
 
         int ncambios = 0;
         String vNombre,vApellidos,vNacionalidad;
-        LocalDate vFechaNac;
+        String vFechaNac;
 
         
         System.out.println("Comenzamos a introducir los datos");
@@ -82,11 +83,11 @@ public class AutorCN {
         } while (vNacionalidad.equals(""));
 
         do {
-            vFechaNac = Io.leerDate("¿Cuándo nació el autor?(YYYY-MM-DD): "); 
-            if (vFechaNac.)) {
+            vFechaNac = Io.leerString("¿Cuándo nació el autor?(YYYY-MM-DD): "); 
+            if (!Io.esFechaValida(vFechaNac)) {
                 Io.sop("La fecha de nacimiento no puede estar vacía.");
             }
-        } while (vFechaNac="");
+        } while (!Io.esFechaValida(vFechaNac));
         // Generar id_autor único (del 1 al 10)
         int id_autor;
         boolean existe;
