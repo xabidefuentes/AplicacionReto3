@@ -76,22 +76,6 @@ public class LibroCN {
             } while (vTitulo.equals("")|| Io.comprobarExistencia(conn, "libros", "titulo", vTitulo));
             return vTitulo;
         }
-
-        /*public static String validarISBN (Connection conn){
-            String vISBN;
-            do{
-                vISBN = Io.leerString("Dime el ISBN del libro:");
-                if (Io.comprobarExistencia(conn, "libros", "isbn", vISBN)) {
-                    Io.sop("El libro ya existe, vuelve a introducirlo");
-                }else if (!vISBN.matches("\\d{4}")) {
-                    Io.sop("El ISBN debe tener 4 nmeros.");
-                }else if (vISBN.equals("")) {
-                    Io.sop("El isbn no puede estar vacía.");
-                }
-
-            } while (Io.comprobarExistencia(conn, "libros", "isbn", vISBN)||vISBN.equals(""));
-            return vISBN;
-        }*/
         public static String validarISBN(Connection conn) {
             String vISBN;
             boolean valido;
