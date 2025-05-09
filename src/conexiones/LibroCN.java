@@ -48,7 +48,7 @@ public class LibroCN {
             Connection conn = Io.getConexion();
             if (conn==null) { Io.sop("sin conexión");return;}
             Io.sop("Conexión correcta");
-            consultaTablaDeleteLibro(conn, 5, 1);
+            consultaTablaDeleteLibro(conn, 9, 1);
             Io.cerrarConexion(conn);
         }
     
@@ -59,7 +59,7 @@ public class LibroCN {
             Io.sop("sin conexión");
             return;
         }
-            modificarLibroConTabla(conn, 5, 1);
+            modificarLibroConTabla(conn, 9, 1);
             Io.cerrarConexion(conn);
         }
         //Funciones
@@ -131,6 +131,34 @@ public class LibroCN {
         
             return ano;
         }
+        public static int validarNumEjemplares() {
+            String entrada;
+            int numEjemplares = -1;
+            boolean valido;
+        
+            do {
+                entrada = Io.leerString("¿Cuántos ejemplares tiene este libro?:");
+                valido = true;
+        
+                if (entrada.trim().isEmpty()) {
+                    Io.sop("El número de ejemplares no puede estar vacío.");
+                    valido = false;
+                } else {
+                    try {
+                        numEjemplares = Integer.parseInt(entrada);
+                        if (numEjemplares < 0) {
+                            Io.sop("El número de ejemplares no puede ser negativo.");
+                            valido = false;
+                        }
+                    } catch (NumberFormatException e) {
+                        Io.sop("Debes introducir un número válido.");
+                        valido = false;
+                    }
+                }
+            } while (!valido);
+        
+            return numEjemplares;
+        }
             //INSERTAR LIBROS
 
 
@@ -164,19 +192,14 @@ public class LibroCN {
 
         vISBN=validarISBN(conn);
         vAnioPublicacion=ejecutarAno(conn);
-        do {
-            numEjemplares = Io.leerInt("¿Cuántos ejemplares tiene este libro?:"); 
-            if (numEjemplares < 0) {
-                Io.sop("El número de ejemplares no puede ser negativo.");
-            }
-        } while (numEjemplares < 0);
+        numEjemplares=validarNumEjemplares();
         // Generar fk_id_autor único (del 1 al 10)
         int fk_id_autor;
         boolean existe;
         do {
-            fk_id_autor = (int)(Math.random() * 20) + 1; // valores del 1 al 20
-            existe = Io.comprobarExistenciaInt(conn, "libros", "fk_id_autor", fk_id_autor);
-        } while (existe);
+            fk_id_autor = (int)(Math.random() * 30) + 1; // valores del 1 al 30
+            existe = Io.comprobarExistenciaInt(conn, "autores", "id_autor", fk_id_autor);
+        } while (!existe); // seguimos buscando hasta que exista en la tabla autores
         String sql = "insert into libros (isbn,titulo,genero,editorial,ano,fk_id_autor) values ('"+vISBN+"','"+vTitulo+"','"+vGenero+"','"+ vEditorial+"','"+vAnioPublicacion+"','" + fk_id_autor+ "')";  
 
 
@@ -188,7 +211,7 @@ public class LibroCN {
     
                 int insertados = 0;
                 while (insertados < numEjemplares) {
-                    int idAleatorio = (int) (Math.random() * 100); 
+                    int idAleatorio = (int) (Math.random() * 1000); 
     
                     // Comprobamos si ya existe ese id
                     if (!Io.comprobarExistenciaInt(conn, "ejemplares", "id_ejemplar", idAleatorio)) {
