@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 import Io.*;
+import principal.Prestamo;
 
 
 public class LibroCN {
@@ -214,71 +215,65 @@ public class LibroCN {
 
 
     public static void consultarLibroPaginado (Connection conn,int nRegPag,int nPag){
-    /*Realizamos la consulta sql para mostrar todos los datos de la tabla, Se mostraran estudiante de 
-     * 10 en 10 (nRegPag), los que correspondean a la pagina nPag
-     * offset es el desplazamiento dentro del fichero
-     * limit : es el numero de registros que voy a leer
-     * con + y - avanzare una pagina. La primera pagina sera la 1
-     * al pulsar ESC saldre de la consulta */
-    Statement stm = null;
-    ResultSet rs = null;
-    int offset,cont,vISBN,vAnioPublicacion,vidAutor;
-    String vTitulo,vGenero,vEditorial,sql;
-    boolean salir = false;
-    while ( ! salir){//Control de las teclas +, -, ESC
-        offset = ( nPag -1)* nRegPag;
-        sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
-        Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
-        Io.sop("║                            Listado LIBROS  |  PÁGINA: " + nPag + "                                ║");
-        Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
-        Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACIÓN║      ISBN     ║    ID AUTOR   ║ ");
-        Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
-        rs = ejecutarSelect (conn,sql);
-        System.out.println(" TABLA DE libros Pag : "+ nPag);
-        System.out.println("-------------------------------");
-        cont = 0;
-        try {
-            while ( rs.next()){
-                vTitulo = rs.getString("titulo");
-                vTitulo= pad2(vTitulo,50);
-                vGenero = rs.getString("genero");
-                vGenero = pad2 ( vGenero,50);
-                vEditorial = rs.getString("editorial");
-                vEditorial = pad2 ( vGenero,50);
-                vAnioPublicacion = rs.getInt("anioPublicacion");
-                vISBN = rs.getInt("ISBN");
-                vidAutor = rs.getInt("ID Autor");
-                System.out.println(pad2(cont++ +".-",5)+ vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
-                cont++;
-            }   
-        }catch (SQLException  e){
-            System.out.println("Problema al ejecutar sql "+ sql+ e.getErrorCode()+ " "+e.getMessage());
-        }
-        Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
-        Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
-        Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
-        int opc = Io.leerInt("Elige una opcion");
-        switch (opc){
-            case '+':
+        Statement stm = null;
+        ResultSet rs = null;
+        boolean salir = false;
+        int offset,vISBN,vAnioPublicacion,vidAutor;
+        String vTitulo,vGenero,vEditorial,sql;
+        while (!salir) {
+            offset = (nPag - 1) * nRegPag;
+            sql = "SELECT * FROM libros LIMIT " + nRegPag + " OFFSET " + offset;
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                            Listado LIBROS  |  PÁGINA: " + nPag + "                                ║");
+            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
+            try {
+                stm = conn.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                    vTitulo = rs.getString("titulo");
+                    vTitulo= pad2(vTitulo,30);
+                    vGenero = rs.getString("genero");
+                    vGenero = pad2 ( vGenero,20);
+                    vEditorial = rs.getString("editorial");
+                    vEditorial = pad2 ( vEditorial,20);
+                    vAnioPublicacion = rs.getInt("ano");
+                    vISBN = rs.getInt("isbn");
+                    vidAutor = rs.getInt("fk_id_autor");
+                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+            Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("Muevete por la tabla y selecciona el libro: ");
+            char opc = Io.leerCaracter();
+            switch (opc) {
+                case '+':
                     nPag++;
                     break;
                 case '-':
-                    nPag--;
-                    if (nPag <= 0) {
+                    if (nPag > 1) {
+                        nPag--;
+                    } else {
                         nPag = 1;
                     }
                     break;
-                case 'x':
+                case 'x' | 'X':
                     salir = true;
-                    menuLibro();
+                    Prestamo.menuPrestamo();
                     break;
                 default:
                     salir = true;
                     break;
+            }
         }
     }
-    
-    }
+
 
     ////EJECUTAR SELECT
 

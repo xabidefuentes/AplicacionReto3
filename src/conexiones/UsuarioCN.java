@@ -1,6 +1,8 @@
 package conexiones;
 
 import Io.Io;
+import principal.Prestamo;
+
 import java.sql.*;
 
 public class UsuarioCN {
@@ -315,7 +317,7 @@ public static String ejecutarValidarTelefono(Connection conn) {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    menuUsuario();
+                    Prestamo.menuPrestamo();
                     break;
                 default:
                     salir = true;

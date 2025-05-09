@@ -4,6 +4,7 @@ import static Io.Io.*;
 import java.sql.*;
 import java.time.LocalDate;
 
+import principal.Busquedas;
 import principal.Prestamo;
 
 public class PrestamoCN {
@@ -49,7 +50,8 @@ public class PrestamoCN {
         // Comprobar si el ejemplar existe
         String nombreLibro;
         do {
-            nombreLibro = leerString("Ingresa el nombre del libro: ");
+            LibroCN.consultarLibroPaginado(conn, 5, 1);
+            nombreLibro = leerString("Ingresa de nuevo el nombre del libro: ");
             if (nombreLibro == null || nombreLibro.isEmpty()) {
                 sop("Saliendo...");
                 Prestamo.menuPrestamo();
@@ -73,7 +75,8 @@ public class PrestamoCN {
 
         // Comprobar si el empleado existe
         do {
-            dniEmpleado = leerString("Ingresa el DNI del empleado: ");
+            Busquedas.tablaEmpleados(conn, 5,1);
+            dniEmpleado = leerString("Ingresa de nuevo el DNI del empleado: ");
             if (dniEmpleado == null || dniEmpleado.isEmpty()) {
                 sop("Saliendo...");
                 Prestamo.menuPrestamo();
