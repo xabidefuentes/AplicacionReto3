@@ -83,8 +83,11 @@ public class LibroCN {
                 vISBN = Io.leerString("Dime el ISBN del libro:");
                 if (Io.comprobarExistencia(conn, "libros", "isbn", vISBN)) {
                     Io.sop("El libro ya existe, vuelve a introducirlo");
+                }else if (vISBN.equals("")) {
+                    Io.sop("El isbn no puede estar vacía.");
                 }
-            } while (Io.comprobarExistencia(conn, "libros", "isbn", vISBN));
+
+            } while (Io.comprobarExistencia(conn, "libros", "isbn", vISBN)||vISBN.equals(""));
             return vISBN;
         }
 
@@ -464,11 +467,21 @@ public class LibroCN {
                     break;
                 case '3':
                     campo = "genero";
-                    nuevoValor =Io.leerString("Introduce el nuevo genero:");
+                    do {
+                        nuevoValor = Io.leerString("Dime el género del libro: ");
+                        if (nuevoValor.equals("")) {
+                            Io.sop("El género no puede estar vacío.");
+                        }
+                    } while (nuevoValor.equals(""));
                     break;
                 case '4':
                     campo = "editorial";
-                    nuevoValor = Io.leerString("Introduce la nueva editorial: ");
+                    do {
+                        nuevoValor = Io.leerString("Dime la editorial del libro: ");
+                        if (nuevoValor.equals("")) {
+                            Io.sop("La editorial no puede estar vacía.");
+                        }
+                    } while (nuevoValor.equals(""));
                     break;
                 case '5':
                     campo = "ano";
