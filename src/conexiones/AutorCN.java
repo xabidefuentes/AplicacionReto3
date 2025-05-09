@@ -180,9 +180,11 @@ public class AutorCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    menuAutores();
                     break;
                 default:
                     salir = true;
+                    menuAutores();
                     break;
             }
         }
@@ -267,9 +269,11 @@ public class AutorCN {
                 break;
             case 'x' | 'X':
                 salir = true;
+                menuAutores();
                 break;
             default:
                 salir = true;
+                menuAutores();
                 break;
         }
     }
@@ -312,6 +316,7 @@ public class AutorCN {
                 break;
             case '6':
                 salir = true;
+                menuAutores();
                 break;
             default:
                 Io.sop("Opción no válida.");
