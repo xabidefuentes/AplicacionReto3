@@ -63,17 +63,21 @@ public class LibroCN {
             Io.cerrarConexion(conn);
         }
         //Funciones
-        public static String validarLibro (Connection conn){
+        public static String validarLibro(Connection conn) {
             String vTitulo;
             do {
                 vTitulo = Io.leerString("Introduce el nuevo título del libro:");
-                 if (vTitulo.equals("")) {
-                     Io.sop("El título no puede estar vacío.");
-                 } else if (Io.comprobarExistencia(conn, "libros", "titulo", vTitulo)) {
-                     Io.sop("Ese título ya existe. Intenta con otro.");
-                     vTitulo = "";
-                 }
-            } while (vTitulo.equals("")|| Io.comprobarExistencia(conn, "libros", "titulo", vTitulo));
+                if (vTitulo.equals("")) {
+                    Io.sop("El título no puede estar vacío.");
+                } else if (vTitulo.matches(".*\\d.*")) {
+                    Io.sop("El título no puede contener números.");
+                    vTitulo = "";
+                } else if (Io.comprobarExistencia(conn, "libros", "titulo", vTitulo)) {
+                    Io.sop("Ese título ya existe. Intenta con otro.");
+                    vTitulo = "";
+                }
+            } while (vTitulo.equals("") || vTitulo.matches(".*\\d.*") ||
+                    Io.comprobarExistencia(conn, "libros", "titulo", vTitulo));
             return vTitulo;
         }
         public static String validarISBN(Connection conn) {
@@ -176,10 +180,13 @@ public class LibroCN {
         System.out.println("Comenzamos a introducir los datos");
         vTitulo = validarLibro(conn);
 
-        do {
+            do {
             vGenero = Io.leerString("Dime el género del libro: ");
             if (vGenero.equals("")) {
                 Io.sop("El género no puede estar vacío.");
+            } else if (vGenero.matches(".*\\d.*")) {
+                Io.sop("El género no puede contener números.");
+                vGenero = "";
             }
         } while (vGenero.equals(""));  
 
@@ -187,6 +194,9 @@ public class LibroCN {
             vEditorial = Io.leerString("Dime la editorial del libro: ");
             if (vEditorial.equals("")) {
                 Io.sop("La editorial no puede estar vacía.");
+            } else if (vEditorial.matches(".*\\d.*")) {
+                Io.sop("La editorial no puede contener números.");
+                vEditorial = "";
             }
         } while (vEditorial.equals(""));
 
@@ -384,6 +394,7 @@ public class LibroCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    menuLibro();
                     break;
                 default:
                     salir = true;
@@ -476,6 +487,7 @@ public class LibroCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    menuLibro();
                     break;
                 default:
                     salir = true;
@@ -515,15 +527,22 @@ public class LibroCN {
                         nuevoValor = Io.leerString("Dime el género del libro: ");
                         if (nuevoValor.equals("")) {
                             Io.sop("El género no puede estar vacío.");
+                        } else if (nuevoValor.matches(".*\\d.*")) {
+                            Io.sop("El género no puede contener números.");
+                            nuevoValor = "";
                         }
-                    } while (nuevoValor.equals(""));
+                    } while (nuevoValor.equals(""));  
                     break;
                 case '4':
                     campo = "editorial";
+                   
                     do {
                         nuevoValor = Io.leerString("Dime la editorial del libro: ");
                         if (nuevoValor.equals("")) {
                             Io.sop("La editorial no puede estar vacía.");
+                        } else if (nuevoValor.matches(".*\\d.*")) {
+                            Io.sop("La editorial no puede contener números.");
+                            vEditorial = "";
                         }
                     } while (nuevoValor.equals(""));
                     break;
