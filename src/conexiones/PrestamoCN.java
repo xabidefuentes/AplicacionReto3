@@ -20,6 +20,10 @@ public class PrestamoCN {
         // Comprobar si el usuario existe
         do {
             dni = leerString("Ingresa el DNI del usuario: ");
+            if (dni == null || dni.isEmpty()) {
+                sop("Saliendo...");
+                Prestamo.menuPrestamo();
+            }
             dni = dni.toUpperCase();
             if (!comprobarExistencia(conn, "usuarios", "dni", dni)) {
                 sop("No existe ningún usuario con ese DNI.");
@@ -32,6 +36,10 @@ public class PrestamoCN {
         String fechaPrestamo;
         do {
             fechaPrestamo = leerString("Ingresa la fecha de préstamo (YYYY-MM-DD): ");
+            if (fechaPrestamo == null || fechaPrestamo.isEmpty()) {
+                sop("Saliendo...");
+                Prestamo.menuPrestamo();
+            }
             if (!esFechaValida(fechaPrestamo)) {
                 sop("Fecha inválida. Debe ser en el formato YYYY-MM-DD.");
             }
@@ -41,6 +49,10 @@ public class PrestamoCN {
         String nombreLibro;
         do {
             nombreLibro = leerString("Ingresa el nombre del libro: ");
+            if (nombreLibro == null || nombreLibro.isEmpty()) {
+                sop("Saliendo...");
+                Prestamo.menuPrestamo();
+            }
             if (!comprobarExistencia(conn, "libros", "titulo", nombreLibro)) {
                 sop("No existe ningún libro con ese título.");
                 idEjemplar = null;
@@ -61,6 +73,10 @@ public class PrestamoCN {
         // Comprobar si el empleado existe
         do {
             dniEmpleado = leerString("Ingresa el DNI del empleado: ");
+            if (dniEmpleado == null || dniEmpleado.isEmpty()) {
+                sop("Saliendo...");
+                Prestamo.menuPrestamo();
+            }
             if (!comprobarExistencia(conn, "empleados", "dni", dniEmpleado)) {
                 sop("No existe ningún empleado con ese DNI.");
             }

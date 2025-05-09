@@ -19,13 +19,13 @@ public class Busquedas {
         int opcion;
         do {
             Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                             🔎 BÚSQUEDAS 🔎                          ║");
+            Io.sop("║                                BÚSQUEDAS                             ║");
             Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
-            Io.sop("║  1. 📖 Buscar Préstamos                                               ║");
-            Io.sop("║  2. 📚 Buscar Libros                                                  ║");
-            Io.sop("║  3. ✍️ Buscar Autores                                                 ║");
-            Io.sop("║  4. 👥 Buscar Usuarios                                                ║");
-            Io.sop("║  5. 🔙 Volver al Menú Principal                                       ║");
+            Io.sop("║  1. Buscar Préstamos                                                  ║");
+            Io.sop("║  2. Buscar Libros                                                     ║");
+            Io.sop("║  3. Buscar Autores                                                    ║");
+            Io.sop("║  4. Buscar Usuarios                                                   ║");
+            Io.sop("║  5. Volver al Menú Principal                                          ║");
             Io.sop("╚═══════════════════════════════════════════════════════════════════════╝");
             opcion = Io.leerInt("Selecciona una opción: ");
             switch (opcion) {

@@ -106,7 +106,7 @@ public static Connection getConexion(){
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            Io.sop("⚠️ Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
+            Io.sop("Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
         }
         return false;
     }
@@ -118,7 +118,7 @@ public static Connection getConexion(){
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            Io.sop("⚠️ Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
+            Io.sop("Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
         }
         return false;
     }
@@ -130,7 +130,7 @@ public static Connection getConexion(){
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            Io.sop("⚠️ Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
+            Io.sop("Error comprobando existencia en tabla " + tabla + ": " + e.getMessage());
         }
         return false;
     }
@@ -167,23 +167,6 @@ public static Connection getConexion(){
         return LocalDate.parse(fechaStr);
     }
 
-    public static void main(String[] args) {
-        /*String texto = leerString("Introduce un texto: ");
-        int numero = leerInt("Introduce un número: ");
-        sop("Texto introducido: " + texto);
-        sop("Número introducido: " + numero);
-
-        Connection conn = getConexion();
-        if (conn != null) {
-            sop("Conexión exitosa a la base de datos.");
-            cerrarConexion(conn);
-        } else {
-            sop("Error al conectar a la base de datos.");
-        }*/
-
-        Prestamo prestamo = new Prestamo();
-       /* Prestamo.menuPrestamo();*/
-    }
     public static String DTOC() {
         Calendar c1 = Calendar.getInstance();
         int dia = c1.get(Calendar.DAY_OF_MONTH);
@@ -235,11 +218,4 @@ public static Connection getConexion(){
         }
         return letra;
     }
-
-   
-
-
-
-    
-
 }
