@@ -1,6 +1,6 @@
 package principal;
 
-import Io.Io;
+import Io.*;
 import conexiones.AutorCN;
 import conexiones.LibroCN;
 import conexiones.PrestamoCN;
@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import static Io.Io.*;
+import static conexiones.UsuarioCN.padl;
 
 public class Busquedas {
     public static void menuBusquedas() {
@@ -39,7 +40,7 @@ public class Busquedas {
                     UsuarioCN.consultarUsuarioPaginado(conn,5,1);
                     break;
                 case 4:
-                   /* UsuarioCN.consultarUsuarioPaginado(conn, 5, 1);*/
+                    tablaEmpleados(conn, 5, 1);
                     break;
                 case 5:
                     System.out.println("Saliendo del menú de préstamos.");
@@ -112,4 +113,70 @@ public class Busquedas {
     }
 
 
+    public static void tablaEmpleados(Connection conn, int nRegPag, int nPag) {
+        Statement stm = null;
+        ResultSet rs = null;
+        boolean salir = false;
+        int offset;
+        String vDni, vNom, vEmail, sql, vPasword, vSeg, vTelefono;
+        while (!salir) {
+            offset = (nPag - 1) * nRegPag;
+            sql = " select * from empleados limit " + nRegPag + " offset " + offset + " ";
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                                                 LISTA DE EMPLEADOS  |  PÁGINA: " + nPag + "                                          ║");
+            Io.sop("╠═════════╦════════════════════════╦═══════════════════════════════╦═════════════════╦═════════════════╦════════════════════╣");
+            Io.sop("║   DNI   ║         NOMBRE         ║             EMAIL             ║     TELÉFONO    ║    PASSWORD     ║  SEGURIDAD SOCIAL  ║");
+            Io.sop("╚═════════╩════════════════════════╩═══════════════════════════════╩═════════════════╩═════════════════╩════════════════════╝");
+            try {
+                stm = conn.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                    vDni = rs.getString("dni");
+                    vDni = padl(vDni, 9);
+                    vNom = rs.getString("nombre");
+                    vNom = padl(vNom, 22);// Para que quede bien en columna del mismo tamaño
+                    vTelefono = rs.getString("telefono");
+                    vTelefono = padl(vTelefono, 16);
+                    vEmail = rs.getString("email");
+                    vEmail = padl(vEmail, 30);
+                    vPasword = rs.getString("password");
+                    vPasword = padl(vPasword, 15);
+                    vSeg = rs.getString("seguridad_social");
+                    vSeg = padl(vSeg, 16);
+                    System.out.println(vDni + " | " + vNom + " | " + vEmail + "| " + vTelefono + "| " + vPasword + " |" + vSeg );
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                                 [-] Página Anterior                                       [X] Salir  ║");
+            Io.sop("╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("Muevete por la tabla y selecciona el DNI del empleado: ");
+            char opc = Io.leerCaracter();
+            switch (opc) {
+                case '+':
+                    nPag++;
+                    break;
+                case '-':
+                    if (nPag > 1) {
+                        nPag--;
+                    } else {
+                        nPag = 1;
+                    }
+                    break;
+                case 'x' | 'X':
+                    salir = true;
+                    Prestamo.menuPrestamo();
+                    break;
+                default:
+                    salir = true;
+                    break;
+            }
+        }
+
+    }
+
+
 }
+
