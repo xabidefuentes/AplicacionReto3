@@ -269,18 +269,15 @@ public class AutorCN {
                 break;
             case 'x' | 'X':
                 salir = true;
-                menuAutores();
                 break;
             default:
                 salir = true;
-                menuAutores();
                 break;
         }
     }
      String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo el id_autor:  ");
      if (!Io.comprobarExistencia(conn, "autores", "id_autor", vModificar)) {
             Io.sop(" No existe ningún autor con ese ID.");
-            menuAutores();
             return;
         }
         Io.sop("¿Qué campo del usuario  deseas modificar?");
