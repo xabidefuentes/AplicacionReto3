@@ -2,6 +2,7 @@ package conexiones;
 
 import Io.Io;
 import principal.Prestamo;
+import principal.main;
 
 import java.sql.*;
 
@@ -31,8 +32,8 @@ public class UsuarioCN {
                     modificarUsuario();
                     break;
                 case 4:
-                    Io.sop("Saliendo.. Hasta pronto");
-                    return;
+                    main.menuPrincipal();
+                    break;
                 default:
                     Io.sop("Opción no válida. Intenta otra vez.");
             }
@@ -266,7 +267,7 @@ public static String ejecutarValidarTelefono(Connection conn) {
             offset = (nPag - 1) * nRegPag;
             sql = " select * from usuarios limit " + nRegPag + " offset " + offset + " ";
             Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                                                           MODIFICACIÓN DE USUARIOS  |  PÁGINA: " + nPag + "                                                    ║");
+            Io.sop("║                                                           LISTADO DE USUARIOS  |  PÁGINA: " + nPag + "                                                    ║");
             Io.sop("╠═════════╦════════════════════════╦═══════════════════════════════╦═════════════════╦═════════════════╦════════════════╦════════════════╦════════════╣");
             Io.sop("║   DNI   ║         NOMBRE         ║             EMAIL             ║     TELÉFONO    ║    PASSWORD     ║  PENALIZACIÓN  ║  FECHA INICIO  ║ FECHA FIN  ║");
             Io.sop("╚═════════╩════════════════════════╩═══════════════════════════════╩═════════════════╩═════════════════╩════════════════╩════════════════╩════════════╝");
@@ -500,14 +501,6 @@ public static String ejecutarValidarTelefono(Connection conn) {
             return false;
         }
         return true;
-    }
-
-
-
-    public static void main(String[] args) {
-
-        menuUsuario();
-
     }
 }
 

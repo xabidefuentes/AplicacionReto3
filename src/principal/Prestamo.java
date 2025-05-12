@@ -114,9 +114,8 @@ public class Prestamo {
                     PrestamoCN.modificarPrestamo();
                     break;
                 case 4:
-                    System.out.println("Saliendo del menú de préstamos.");
-                    ;
                     main.menuPrincipal();
+                    break;
                 default:
                     System.out.println("Opción no válida. Intenta otra vez.");
             }

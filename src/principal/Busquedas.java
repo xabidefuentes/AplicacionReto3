@@ -43,7 +43,6 @@ public class Busquedas {
                     tablaEmpleados(conn, 5, 1);
                     break;
                 case 5:
-                    System.out.println("Saliendo del menú de préstamos.");
                     main.menuPrincipal();
                 default:
                     System.out.println("Opción no válida. Intenta otra vez.");
@@ -55,17 +54,17 @@ public class Busquedas {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        String idPrestamo = "", FechaPrestamo = "", FechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "", swIdSeleccionado = null;
+        String idPrestamo = "", fechaPrestamo = "", fechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "", swIdSeleccionado = "", tituloLibro = "", nombreUsuario = "", nombreEmpleado = "";
         int offset, posicion = 0;
         String[] aId = new String[totalRegistros];
         while (!salir) {
             offset = (pagina - 1) * totalRegistros;
             String sql = "SELECT * FROM prestamos LIMIT " + totalRegistros + " OFFSET " + offset;
-            sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
-            sop("║                         MODIFICACIÓN DE PRÉSTAMOS  |  PÁGINA: " + pagina + "                        ║");
-            sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦══════════════╣");
-            sop("║  ID ║ FECHA PRÉSTAMO ║ FECHA DEVOLUCIÓN ║  DNI USUARIO  ║  ID EJEMPLAR  ║ DNI EMPLEADO ║");
-            sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩══════════════╝");
+            sop("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            sop("║                                                                  LISTADO DE PRÉSTAMOS  |  PÁGINA: " + pagina + "                                                                  ║");
+            sop("╠═════╦════════════════════════════════╦═══════════════╦════════════════╦══════════════════╦═══════════════╦══════════════════════╦═══════════════╦════════════════════╣");
+            sop("║ ID  ║        TÍTULO LIBRO            ║  ID EJEMPLAR  ║ FECHA PRÉSTAMO ║ FECHA DEVOLUCIÓN ║  DNI USUARIO  ║    NOMBRE USUARIO    ║  DNI EMPLEADO ║   NOMBRE EMPLEADO  ║");
+            sop("╚═════╩════════════════════════════════╩═══════════════╩════════════════╩══════════════════╩═══════════════╩══════════════════════╩═══════════════╩════════════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
@@ -73,22 +72,31 @@ public class Busquedas {
                 int cont = 0; // Aquí empieza desde el número correcto
                 while (rs.next()) {
                     idPrestamo = PADL(rs.getString("id_prestamo"), 5);
-                    FechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
-                    FechaDevolucion = PADL(rs.getString("fecha_devolucion"), 16);
+                    tituloLibro = PrestamoCN.buscarPrestamoPorId(conn, idPrestamo);
+                    tituloLibro = PADL(tituloLibro, 30);
+                    fechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
+                    fechaDevolucion = rs.getString("fecha_devolucion");
+                    fechaDevolucion = PrestamoCN.mostrarPenalización(conn, fechaDevolucion, dniUsuario);
+                    fechaDevolucion = PADL(fechaDevolucion, 16);
+
                     dniUsuario = PADL(rs.getString("fk_dni_usuario"), 13);
+                    nombreUsuario = PrestamoCN.buscarUsuarioPorDni(conn, dniUsuario);
+                    nombreUsuario = PADL(nombreUsuario, 20);
                     idEjemplar = PADL(rs.getString("fk_id_ejemplar"), 13);
-                    dniEmpleado = PADL(rs.getString("fk_dni_empleado"), 9);
+                    dniEmpleado = PADL(rs.getString("fk_dni_empleado"), 13);
+                    nombreEmpleado = PrestamoCN.buscarEmpleadoPorDni(conn, dniEmpleado);
+                    nombreEmpleado = PADL(nombreEmpleado, 20);
                     aId[cont] = idPrestamo;
-                    sop(idPrestamo + " | " + FechaPrestamo + " | " + FechaDevolucion + " | " + dniUsuario + " | " + idEjemplar + " | " + dniEmpleado);
+                    sop(idPrestamo + " | " + tituloLibro + " | "  + idEjemplar + " | " + fechaPrestamo + " | " + fechaDevolucion + " | " + dniUsuario + " | " + nombreUsuario + " | " + dniEmpleado + " | " + nombreEmpleado);
                     cont++;
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
-            sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
-            sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            sop("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            sop("║ [+] Página Siguiente                                                 [-] Página Anterior                                                                  [X] Salir  ║");
+            sop("╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
             char opc = leerCaracter();
             switch (opc) {
                 case '+':
@@ -103,10 +111,11 @@ public class Busquedas {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    Prestamo.menuPrestamo();
+                    menuBusquedas();
                     break;
                 default:
                     salir = true;
+                    Prestamo.menuPrestamo();
                     break;
             }
         }

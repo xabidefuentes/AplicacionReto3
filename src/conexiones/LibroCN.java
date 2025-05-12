@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import Io.*;
 import principal.Prestamo;
+import principal.main;
 
 
 public class LibroCN {
@@ -16,15 +17,15 @@ public class LibroCN {
     public static void menuLibro(){
         int opcion;
         do{
-            Io.sop("***********************************************************************");
-            Io.sop("********************  GESTION DE LIBROS  ****************");
-            Io.sop("*****************  DE LA BIBLIOTECA MUNICIPAL *******************************");
-            Io.sop("**************************  DE MUSKIZ  ************************************");
-            Io.sop("1. AGREGAR LIBRO");
-            Io.sop("2. BORRAR LIBRO");
-            Io.sop("3. MODIFICAR LIBRO");
-            Io.sop("4. SALIR");
-             opcion = Io.leerInt("Selecciona una opción: ");
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                         GESTIÓN DE LIBROS                            ║");
+            Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
+            Io.sop("║  1. Agregar Libro                                                     ║");
+            Io.sop("║  2. Borrar Libro                                                      ║");
+            Io.sop("║  3. Modificar Libro                                                   ║");
+            Io.sop("║  4. Salir                                                             ║");
+            Io.sop("╚═══════════════════════════════════════════════════════════════════════╝");
+            opcion = Io.leerInt("Selecciona una opción: ");
             switch (opcion) {
                 case 1:
                     insertarLibro();
@@ -36,7 +37,7 @@ public class LibroCN {
                     modificarLibro();
                     break;
                 case 4:
-                Io.sop("Saliendo.. Hasta pronto");
+                    main.menuPrincipal();
                 return;
                 default:
                     Io.sop("Opción no válida. Intenta otra vez.");
@@ -256,21 +257,21 @@ public class LibroCN {
         while (!salir) {
             offset = (nPag - 1) * nRegPag;
             sql = "SELECT * FROM libros LIMIT " + nRegPag + " OFFSET " + offset;
-            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                            Listado LIBROS  |  PÁGINA: " + nPag + "                                ║");
-            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
-            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
-            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                              LISTADO DE LIBROS  |  PÁGINA: " + Io.PADL(nPag + "", 49) + "║");
+            Io.sop("╠════════════════════════════════╦════════════════╦══════════════════╦════════════════╦════════════════╦════════════════╣");
+            Io.sop("║            TÍTULO              ║     GÉNERO     ║     EDITORIAL    ║ AÑO PUBLICACIÓN║      ISBN      ║   ID AUTOR     ║");
+            Io.sop("╚════════════════════════════════╩════════════════╩══════════════════╩════════════════╩════════════════╩════════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
                 while (rs.next()) {
                     vTitulo = rs.getString("titulo");
-                    vTitulo= pad2(vTitulo,30);
+                    vTitulo= pad2(vTitulo,65);
                     vGenero = rs.getString("genero");
-                    vGenero = pad2 ( vGenero,20);
+                    vGenero = pad2 ( vGenero,25);
                     vEditorial = rs.getString("editorial");
-                    vEditorial = pad2 ( vEditorial,20);
+                    vEditorial = pad2 ( vEditorial,30);
                     vAnioPublicacion = rs.getInt("ano");
                     vISBN = rs.getInt("isbn");
                     vidAutor = rs.getInt("fk_id_autor");
@@ -339,17 +340,16 @@ public class LibroCN {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        int offset,vISBN,vAnioPublicacion,vidAutor;
-        String vTitulo,vGenero,vEditorial,sql;
+        int offset;
+        String vTitulo,vGenero,vEditorial,sql,vISBN,vAnioPublicacion,vidAutor;
         while (!salir) {
             offset = (npag - 1) * nRegpag;
             sql = "SELECT * FROM libros LIMIT " + nRegpag + " OFFSET " + offset;
-            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                            Listado LIBROS  |  PÁGINA: " + npag + "                                ║");
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                            Listado LIBROS  |  PÁGINA: " + npag + "                                                                                     ║");
             Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
-            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║ AÑO PUBLICACION ║      ISBN     ║   ID AUTOR   ║ ");
             Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
-
 
 
             try {
@@ -357,14 +357,17 @@ public class LibroCN {
                 rs = stm.executeQuery(sql);
                 while (rs.next()) {
                     vTitulo = rs.getString("titulo");
-                    vTitulo= pad2(vTitulo,30);
+                    vTitulo= pad2(vTitulo,40);
                     vGenero = rs.getString("genero");
-                    vGenero = pad2 ( vGenero,20);
+                    vGenero = pad2 ( vGenero,25);
                     vEditorial = rs.getString("editorial");
-                    vEditorial = pad2 ( vEditorial,20);
-                    vAnioPublicacion = rs.getInt("ano");
-                    vISBN = rs.getInt("isbn");
-                    vidAutor = rs.getInt("fk_id_autor");
+                    vEditorial = pad2 ( vEditorial,30);
+                    vAnioPublicacion = rs.getString("ano");
+                    vAnioPublicacion = Io.PADL ( vAnioPublicacion+"",10);
+                    vISBN = rs.getString("isbn");
+                    vISBN = Io.PADL ( vISBN+"",10);
+                    vidAutor = rs.getString("fk_id_autor");
+                    vidAutor = Io.PADL ( vidAutor+"",10);
                     System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 }
 
@@ -574,18 +577,4 @@ public class LibroCN {
             }
             return true;
        }
-     
-      
-        
-       
-        
-        
-        public static void main(String[] args) {
-    
-            menuLibro();
-        
-        
-        }
-       
-    
 }

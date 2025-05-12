@@ -201,6 +201,73 @@ public class PrestamoCN {
         return 0;
     }
 
+    public static String buscarPrestamoPorId (Connection conn, String idPrestamo) {
+        String query = "SELECT titulo FROM libros WHERE isbn = (SELECT fk_isbn FROM ejemplares WHERE id_ejemplar = (SELECT fk_id_ejemplar FROM prestamos WHERE id_prestamo = '" + idPrestamo + "'))";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return rs.getString("titulo");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error SQL: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static String mostrarPenalización(Connection conn, String fechaDevolucion, String dniUsuario) {
+        if (fechaDevolucion.equals("1000-10-10")) {
+            return "ACTIVO";
+        } else {
+            if (estaPenalizado(conn, dniUsuario)) {
+                return "PENALIZADO";
+            } else {
+                return fechaDevolucion;
+            }
+        }
+    }
+    public static boolean estaPenalizado(Connection conn, String dniUsuario) {
+        String query = "SELECT penalizacion FROM usuarios WHERE dni = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, dniUsuario);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return "SI".equalsIgnoreCase(rs.getString("penalizacion"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error SQL: " + e.getMessage());
+        }
+        return false;
+    }
+    public static String buscarUsuarioPorDni (Connection conn, String dni) {
+        String query = "SELECT nombre FROM usuarios WHERE dni = '" + dni + "'";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return rs.getString("nombre");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error SQL: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static String buscarEmpleadoPorDni (Connection conn, String dni) {
+        String query = "SELECT nombre FROM empleados WHERE dni = '" + dni + "'";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return rs.getString("nombre");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error SQL: " + e.getMessage());
+        }
+        return null;
+    }
+
+
     private static void cambiarEstadoEjemplar (Connection conn, String idEjemplar) {
         String sql = "UPDATE ejemplares SET estado = 'PRESTADO' WHERE id_ejemplar = '" + idEjemplar + "'";
         try {
@@ -215,19 +282,17 @@ public class PrestamoCN {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        String idPrestamo = "", FechaPrestamo = "", FechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "", swIdSeleccionado = null;
+        String idPrestamo = "", fechaPrestamo = "", fechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "", swIdSeleccionado = "", tituloLibro = "", nombreUsuario = "", nombreEmpleado = "";
         int offset, posicion = 0;
         String[] aId = new String[totalRegistros];
         while (!salir) {
             offset = (pagina - 1) * totalRegistros;
             String sql = "SELECT * FROM prestamos LIMIT " + totalRegistros + " OFFSET " + offset;
-            sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
-            sop("║                         MODIFICACIÓN DE PRÉSTAMOS  |  PÁGINA: " + pagina + "                        ║");
-            sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦══════════════╣");
-            sop("║  ID ║ FECHA PRÉSTAMO ║ FECHA DEVOLUCIÓN ║  DNI USUARIO  ║  ID EJEMPLAR  ║ DNI EMPLEADO ║");
-            sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩══════════════╝");
-
-
+            sop("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            sop("║                                                                  LISTADO DE PRÉSTAMOS  |  PÁGINA: " + pagina + "                                                                  ║");
+            sop("╠═════╦════════════════════════════════╦═══════════════╦════════════════╦══════════════════╦═══════════════╦══════════════════════╦═══════════════╦════════════════════╣");
+            sop("║ ID  ║        TÍTULO LIBRO            ║  ID EJEMPLAR  ║ FECHA PRÉSTAMO ║ FECHA DEVOLUCIÓN ║  DNI USUARIO  ║    NOMBRE USUARIO    ║  DNI EMPLEADO ║   NOMBRE EMPLEADO  ║");
+            sop("╚═════╩════════════════════════════════╩═══════════════╩════════════════╩══════════════════╩═══════════════╩══════════════════════╩═══════════════╩════════════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
@@ -235,22 +300,31 @@ public class PrestamoCN {
                 int cont = 0; // Aquí empieza desde el número correcto
                 while (rs.next()) {
                     idPrestamo = PADL(rs.getString("id_prestamo"), 5);
-                    FechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
-                    FechaDevolucion = PADL(rs.getString("fecha_devolucion"), 16);
+                    tituloLibro = PrestamoCN.buscarPrestamoPorId(conn, idPrestamo);
+                    tituloLibro = PADL(tituloLibro, 30);
+                    fechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
+                    fechaDevolucion = rs.getString("fecha_devolucion");
+                    fechaDevolucion = PrestamoCN.mostrarPenalización(conn, fechaDevolucion, dniUsuario);
+                    fechaDevolucion = PADL(fechaDevolucion, 16);
+
                     dniUsuario = PADL(rs.getString("fk_dni_usuario"), 13);
+                    nombreUsuario = PrestamoCN.buscarUsuarioPorDni(conn, dniUsuario);
+                    nombreUsuario = PADL(nombreUsuario, 20);
                     idEjemplar = PADL(rs.getString("fk_id_ejemplar"), 13);
-                    dniEmpleado = PADL(rs.getString("fk_dni_empleado"), 9);
+                    dniEmpleado = PADL(rs.getString("fk_dni_empleado"), 13);
+                    nombreEmpleado = PrestamoCN.buscarEmpleadoPorDni(conn, dniEmpleado);
+                    nombreEmpleado = PADL(nombreEmpleado, 20);
                     aId[cont] = idPrestamo;
-                    sop(idPrestamo + " | " + FechaPrestamo + " | " + FechaDevolucion + " | " + dniUsuario + " | " + idEjemplar + " | " + dniEmpleado);
+                    sop(idPrestamo + " | " + tituloLibro + " | "  + idEjemplar + " | " + fechaPrestamo + " | " + fechaDevolucion + " | " + dniUsuario + " | " + nombreUsuario + " | " + dniEmpleado + " | " + nombreEmpleado);
                     cont++;
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
-            sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
-            sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            sop("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            sop("║ [+] Página Siguiente                                                 [-] Página Anterior                                                                  [X] Salir  ║");
+            sop("╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
             sop("Muevete por la tabla y selecciona el ID del préstamo que deseas modificar: ");
             char opc = leerCaracter();
             switch (opc) {
@@ -270,8 +344,10 @@ public class PrestamoCN {
                     break;
                 default:
                     salir = true;
+                    Prestamo.menuPrestamo();
                     break;
             }
+
         }
         String idAntiguo = leerString("Introduce de nuevo el ID del préstamo que quieres modificar: ");
         if (!comprobarExistencia(conn, "prestamos", "id_prestamo", idAntiguo)) {
@@ -384,39 +460,49 @@ public class PrestamoCN {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        String idPrestamo = "", FechaPrestamo = "", FechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "", swIdSeleccionado = null;
+        String idPrestamo = "", fechaPrestamo = "", fechaDevolucion = "", dniUsuario = "", idEjemplar = "", dniEmpleado = "", swIdSeleccionado = "", tituloLibro = "", nombreUsuario = "", nombreEmpleado = "";
         int offset, posicion = 0;
         String[] aId = new String[totalRegistros];
         while (!salir) {
             offset = (pagina - 1) * totalRegistros;
             String sql = "SELECT * FROM prestamos LIMIT " + totalRegistros + " OFFSET " + offset;
-            sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
-            sop("║                             ELIMINAR PRÉSTAMOS  |  PÁGINA: " + pagina + "                           ║");
-            sop("╠═════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦══════════════╣");
-            sop("║  ID ║ FECHA PRÉSTAMO ║ FECHA DEVOLUCIÓN ║  DNI USUARIO  ║  ID EJEMPLAR  ║ DNI EMPLEADO ║");
-            sop("╚═════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩══════════════╝");
+            sop("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            sop("║                                                                  LISTADO DE PRÉSTAMOS  |  PÁGINA: " + pagina + "                                                                  ║");
+            sop("╠═════╦════════════════════════════════╦═══════════════╦════════════════╦══════════════════╦═══════════════╦══════════════════════╦═══════════════╦════════════════════╣");
+            sop("║ ID  ║        TÍTULO LIBRO            ║  ID EJEMPLAR  ║ FECHA PRÉSTAMO ║ FECHA DEVOLUCIÓN ║  DNI USUARIO  ║    NOMBRE USUARIO    ║  DNI EMPLEADO ║   NOMBRE EMPLEADO  ║");
+            sop("╚═════╩════════════════════════════════╩═══════════════╩════════════════╩══════════════════╩═══════════════╩══════════════════════╩═══════════════╩════════════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
-                int cont = 0;
+
+                int cont = 0; // Aquí empieza desde el número correcto
                 while (rs.next()) {
                     idPrestamo = PADL(rs.getString("id_prestamo"), 5);
-                    FechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
-                    FechaDevolucion = PADL(rs.getString("fecha_devolucion"), 16);
+                    tituloLibro = PrestamoCN.buscarPrestamoPorId(conn, idPrestamo);
+                    tituloLibro = PADL(tituloLibro, 30);
+                    fechaPrestamo = PADL(rs.getString("fecha_prestamo"), 14);
+                    fechaDevolucion = rs.getString("fecha_devolucion");
+                    fechaDevolucion = PrestamoCN.mostrarPenalización(conn, fechaDevolucion, dniUsuario);
+                    fechaDevolucion = PADL(fechaDevolucion, 16);
+
                     dniUsuario = PADL(rs.getString("fk_dni_usuario"), 13);
+                    nombreUsuario = PrestamoCN.buscarUsuarioPorDni(conn, dniUsuario);
+                    nombreUsuario = PADL(nombreUsuario, 20);
                     idEjemplar = PADL(rs.getString("fk_id_ejemplar"), 13);
-                    dniEmpleado = PADL(rs.getString("fk_dni_empleado"), 9);
+                    dniEmpleado = PADL(rs.getString("fk_dni_empleado"), 13);
+                    nombreEmpleado = PrestamoCN.buscarEmpleadoPorDni(conn, dniEmpleado);
+                    nombreEmpleado = PADL(nombreEmpleado, 20);
                     aId[cont] = idPrestamo;
-                    sop(idPrestamo + " | " + FechaPrestamo + " | " + FechaDevolucion + " | " + dniUsuario + " | " + idEjemplar + " | " + dniEmpleado);
+                    sop(idPrestamo + " | " + tituloLibro + " | "  + idEjemplar + " | " + fechaPrestamo + " | " + fechaDevolucion + " | " + dniUsuario + " | " + nombreUsuario + " | " + dniEmpleado + " | " + nombreEmpleado);
                     cont++;
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
-            sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
-            sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            sop("╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            sop("║ [+] Página Siguiente                                                 [-] Página Anterior                                                                  [X] Salir  ║");
+            sop("╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
             sop("Muevete por la tabla y selecciona el ID del préstamo que deseas eliminar: ");
             char opc = leerCaracter();
             switch (opc) {
@@ -436,8 +522,10 @@ public class PrestamoCN {
                     break;
                 default:
                     salir = true;
+                    Prestamo.menuPrestamo();
                     break;
             }
+
         }
         swIdSeleccionado = leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ID del préstamo: ");
         if (!comprobarExistencia(conn, "prestamos", "id_prestamo", swIdSeleccionado)) {

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 
 import Io.*;
 import conexiones.*;
+import principal.main;
 
 public class AutorCN {
     //FUNCIONES//
@@ -20,15 +21,14 @@ public class AutorCN {
     //MENU AUTORES//
 
     public static void menuAutores(){
-        Io.sop("***********************************************************************");
-        Io.sop("************************  GESTION DE AUTORES  ************************");
-        Io.sop("*********************  DE LA BIBLIOTECA MUNICIPAL *********************");
-        Io.sop("****************************   DE MUSKIZ  ****************************");
-        Io.sop("***********************************************************************");
-        Io.sop("1. AGREGAR AUTOR");
-        Io.sop("2. BORRAR AUTOR");
-        Io.sop("3. MODIFICAR AUTOR");
-        Io.sop("4. SALIR");
+        Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
+        Io.sop("║                         GESTIÓN DE AUTORES                            ║");
+        Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
+        Io.sop("║  1. Agregar Autor                                                     ║");
+        Io.sop("║  2. Borrar Autor                                                      ║");
+        Io.sop("║  3. Modificar Autor                                                   ║");
+        Io.sop("║  4. Salir                                                             ║");
+        Io.sop("╚═══════════════════════════════════════════════════════════════════════╝");
         int opcion = Io.leerInt("Selecciona una opción: ");
         switch (opcion) {
             case 1:
@@ -41,7 +41,7 @@ public class AutorCN {
                 AutorCN.modificarAutor(getConexion(), opcion, opcion);
                 break;
             case 4:
-            Io.sop("Saliendo...");
+                main.menuPrincipal();
                 break;
             default:
                 Io.sop("Opción no válida. Intenta otra vez.");
