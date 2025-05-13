@@ -18,7 +18,7 @@ public class LibroCN {
         int opcion;
         do{
             Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                            GESTIÓN DE LIBROS                          ║");
+            Io.sop("║                         GESTIÓN DE LIBROS                            ║");
             Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
             Io.sop("║  1. Agregar Libro                                                     ║");
             Io.sop("║  2. Borrar Libro                                                      ║");
@@ -50,7 +50,7 @@ public class LibroCN {
             Connection conn = Io.getConexion();
             if (conn==null) { Io.sop("sin conexión");return;}
             Io.sop("Conexión correcta");
-            consultaTablaDeleteLibro(conn, 10, 1);
+            consultaTablaDeleteLibro(conn, 9, 1);
             Io.cerrarConexion(conn);
         }
     
@@ -61,7 +61,7 @@ public class LibroCN {
             Io.sop("sin conexión");
             return;
         }
-            modificarLibroConTabla(conn, 10, 1);
+            modificarLibroConTabla(conn, 9, 1);
             Io.cerrarConexion(conn);
         }
         //Funciones
@@ -257,33 +257,33 @@ public class LibroCN {
         while (!salir) {
             offset = (nPag - 1) * nRegPag;
             sql = "SELECT * FROM libros LIMIT " + nRegPag + " OFFSET " + offset;
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                                                            LISTADO DE LIBROS  |  PÁGINA: " + Io.PADL(nPag + "", 49) + "  ║");
-            Io.sop("╠═════════════════════════════════════════╦══════════════════════╦═══════════════════════════════╦═════════════╦════════════════╦═════════════╣");
-            Io.sop("║                  TÍTULO                 ║        GÉNERO        ║           EDITORIAL           ║     AÑO     ║      ISBN      ║  ID AUTOR   ║");
-            Io.sop("╚═════════════════════════════════════════╩══════════════════════╩═══════════════════════════════╩═════════════╩════════════════╩═════════════╝");
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                              LISTADO DE LIBROS  |  PÁGINA: " + Io.PADL(nPag + "", 49) + "║");
+            Io.sop("╠════════════════════════════════╦════════════════╦══════════════════╦════════════════╦════════════════╦════════════════╣");
+            Io.sop("║            TÍTULO              ║     GÉNERO     ║     EDITORIAL    ║ AÑO PUBLICACIÓN║      ISBN      ║   ID AUTOR     ║");
+            Io.sop("╚════════════════════════════════╩════════════════╩══════════════════╩════════════════╩════════════════╩════════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
                 while (rs.next()) {
                     vTitulo = rs.getString("titulo");
-                    vTitulo= pad2(vTitulo,41);
+                    vTitulo= pad2(vTitulo,65);
                     vGenero = rs.getString("genero");
-                    vGenero = pad2 ( vGenero,20);
+                    vGenero = pad2 ( vGenero,25);
                     vEditorial = rs.getString("editorial");
                     vEditorial = pad2 ( vEditorial,30);
                     vAnioPublicacion = rs.getInt("ano");
                     vISBN = rs.getInt("isbn");
                     vidAutor = rs.getInt("fk_id_autor");
-                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"        |"+vISBN+"            | "+vidAutor+"    ");
+                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║ [+] Página Siguiente                                             [-] Página Anterior                                      [X] Salir         ║");
-            Io.sop("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+            Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
             Io.sop("Muevete por la tabla y selecciona el libro: ");
             char opc = Io.leerCaracter();
             switch (opc) {
@@ -299,7 +299,7 @@ public class LibroCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
-                    menuLibro();
+                    Prestamo.menuPrestamo();
                     break;
                 default:
                     salir = true;
@@ -336,53 +336,58 @@ public class LibroCN {
         }
     }
 
-    public static void consultaTablaDeleteLibro (Connection conn, int nRegpag, int nPag) {
+    public static void consultaTablaDeleteLibro (Connection conn, int nRegpag, int npag) {
         Statement stm = null;
         ResultSet rs = null;
         boolean salir = false;
-        int offset,vISBN,vAnioPublicacion,vidAutor;
-        String vTitulo,vGenero,vEditorial,sql;
+        int offset;
+        String vTitulo,vGenero,vEditorial,sql,vISBN,vAnioPublicacion,vidAutor;
         while (!salir) {
-            offset = (nPag - 1) * nRegpag;
+            offset = (npag - 1) * nRegpag;
             sql = "SELECT * FROM libros LIMIT " + nRegpag + " OFFSET " + offset;
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                                                            LISTADO DE LIBROS  |  PÁGINA: " + Io.PADL(nPag + "", 49) + "  ║");
-            Io.sop("╠═════════════════════════════════════════╦══════════════════════╦═══════════════════════════════╦═════════════╦════════════════╦═════════════╣");
-            Io.sop("║                  TÍTULO                 ║        GÉNERO        ║           EDITORIAL           ║     AÑO     ║      ISBN      ║  ID AUTOR   ║");
-            Io.sop("╚═════════════════════════════════════════╩══════════════════════╩═══════════════════════════════╩═════════════╩════════════════╩═════════════╝");
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                            Listado LIBROS  |  PÁGINA: " + npag + "                                                                                     ║");
+            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║ AÑO PUBLICACION ║      ISBN     ║   ID AUTOR   ║ ");
+            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
+
+
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
                 while (rs.next()) {
                     vTitulo = rs.getString("titulo");
-                    vTitulo= pad2(vTitulo,41);
+                    vTitulo= pad2(vTitulo,40);
                     vGenero = rs.getString("genero");
-                    vGenero = pad2 ( vGenero,20);
+                    vGenero = pad2 ( vGenero,25);
                     vEditorial = rs.getString("editorial");
                     vEditorial = pad2 ( vEditorial,30);
-                    vAnioPublicacion = rs.getInt("ano");
-                    vISBN = rs.getInt("isbn");
-                    vidAutor = rs.getInt("fk_id_autor");
-                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"        |"+vISBN+"            | "+vidAutor+"    ");
+                    vAnioPublicacion = rs.getString("ano");
+                    vAnioPublicacion = Io.PADL ( vAnioPublicacion+"",10);
+                    vISBN = rs.getString("isbn");
+                    vISBN = Io.PADL ( vISBN+"",10);
+                    vidAutor = rs.getString("fk_id_autor");
+                    vidAutor = Io.PADL ( vidAutor+"",10);
+                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║ [+] Página Siguiente                                             [-] Página Anterior                                      [X] Salir         ║");
-            Io.sop("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+            Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
             Io.sop("Muevete por la tabla y selecciona el isbn del libro que deseas eliminar: ");
             char opc = Io.leerCaracter();
             switch (opc) {
                 case '+':
-                    nPag++;
+                    npag++;
                     break;
                 case '-':
-                    if (nPag > 1) {
-                        nPag--;
+                    if (npag > 1) {
+                        npag--;
                     } else {
-                        nPag = 1;
+                        npag = 1;
                     }
                     break;
                 case 'x' | 'X':
@@ -435,35 +440,36 @@ public class LibroCN {
         int offset,vISBN,vAnioPublicacion,vidAutor;
         String vTitulo,vGenero,vEditorial,sql;
         while (!salir) {
-            offset = (nPag - 1) * nRegPag;
-            sql = "SELECT * FROM libros LIMIT " + nRegPag + " OFFSET " + offset;
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                                                            LISTADO DE LIBROS  |  PÁGINA: " + Io.PADL(nPag + "", 49) + "  ║");
-            Io.sop("╠═════════════════════════════════════════╦══════════════════════╦═══════════════════════════════╦═════════════╦════════════════╦═════════════╣");
-            Io.sop("║                  TÍTULO                 ║        GÉNERO        ║           EDITORIAL           ║     AÑO     ║      ISBN      ║  ID AUTOR   ║");
-            Io.sop("╚═════════════════════════════════════════╩══════════════════════╩═══════════════════════════════╩═════════════╩════════════════╩═════════════╝");
+            offset = ( nPag -1)* nRegPag;
+            sql = " select * from libros limit " +nRegPag+ " offset "+ offset + " ";
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop(  "║                            Modificacion LIBROS  |  PÁGINA: " + nPag + "                                 ║");
+            Io.sop("╠═══════════════╦════════════════╦══════════════════╦═══════════════╦═══════════════╦═══════════════╣");
+            Io.sop("║    Titulo     ║     Genero     ║      Editorial   ║AÑO PUBLICACION║      ISBN     ║    ID AUTOR   ║ ");
+            Io.sop("╚═══════════════╩════════════════╩══════════════════╩═══════════════╩═══════════════╩═══════════════╝");
             try {
                 stm = conn.createStatement();
                 rs = stm.executeQuery(sql);
                 while (rs.next()) {
                     vTitulo = rs.getString("titulo");
-                    vTitulo= pad2(vTitulo,41);
+                    vTitulo= pad2(vTitulo,30);
                     vGenero = rs.getString("genero");
                     vGenero = pad2 ( vGenero,20);
                     vEditorial = rs.getString("editorial");
-                    vEditorial = pad2 ( vEditorial,30);
+                    vEditorial = pad2 ( vEditorial,20);
                     vAnioPublicacion = rs.getInt("ano");
                     vISBN = rs.getInt("isbn");
                     vidAutor = rs.getInt("fk_id_autor");
-                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"        |"+vISBN+"            | "+vidAutor+"    ");
+                    System.out.println(vTitulo +" | "+ vGenero +" | "+ vEditorial+"| "+vAnioPublicacion+"|"+vISBN+"| "+vidAutor);
+                    
                 }
-
+    
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║ [+] Página Siguiente                                             [-] Página Anterior                                      [X] Salir         ║");
-            Io.sop("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                 [-] Página Anterior                    [X] Salir  ║");
+            Io.sop("╚════════════════════════════════════════════════════════════════════════════════════════╝");
             Io.sop("Muevete por la tabla y selecciona el ISBN del libro que deseas modificar: ");
             char opc = Io.leerCaracter();
             switch (opc) {
