@@ -18,7 +18,7 @@ public class LibroCN {
         int opcion;
         do{
             Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║                         GESTIÓN DE LIBROS                            ║");
+            Io.sop("║                         GESTIÓN DE LIBROS                             ║");
             Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
             Io.sop("║  1. Agregar Libro                                                     ║");
             Io.sop("║  2. Borrar Libro                                                      ║");
