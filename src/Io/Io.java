@@ -205,7 +205,6 @@ public static Connection getConexion(){
         }
     }
 
-
     public static char leerCaracter(){
         Scanner sc = new Scanner(System.in);
         char letra = ' ';
