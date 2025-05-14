@@ -17,7 +17,7 @@ public class main {
         int opcion;
         do {
             Io.sop("╔═══════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║              BIENVENIDO A LA BIBLIOTECA MUNICIPAL DE MUSKIZ          ║");
+            Io.sop("║              BIENVENIDO A LA BIBLIOTECA MUNICIPAL DE MUSKIZ           ║");
             Io.sop("║                           " + Io.DTOC() + "                          ║");
             Io.sop("╠═══════════════════════════════════════════════════════════════════════╣");
             Io.sop("║  1. GESTIONAR PRÉSTAMOS                                               ║");

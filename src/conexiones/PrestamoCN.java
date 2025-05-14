@@ -3,9 +3,11 @@ import Io.*;
 import static Io.Io.*;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import principal.Busquedas;
 import principal.Prestamo;
+import principal.main;
 
 public class PrestamoCN {
     public static void añadirPrestamo() {
@@ -32,6 +34,15 @@ public class PrestamoCN {
             }
             if (!validarDni(dni)) {
                 sop("DNI inválido. Debe tener 8 dígitos y una letra al final.");
+            }
+            if (comprobarUsuarioPenalizado(conn, dni)) {
+                int dias = comprobarDiasPenalizado(conn, dni);
+                sop("El usuario se encuentra penalizado. Le quedan " + dias + " dias para no estar penalizado.");
+                main.menuPrincipal();
+            }
+            if (comprobarMasDe3Prestamos(conn, dni)) {
+                sop("El usuario tiene mas de 3 prestamos.");
+                main.menuPrincipal();
             }
         } while (!comprobarExistencia(conn, "usuarios", "dni", dni));
 
@@ -75,7 +86,7 @@ public class PrestamoCN {
 
         // Comprobar si el empleado existe
         do {
-            Busquedas.tablaEmpleados(conn, 5,1);
+            Busquedas.buscarEmpleados(conn, 5,1);
             dniEmpleado = leerString("Ingresa de nuevo el DNI del empleado: ");
             if (dniEmpleado == null || dniEmpleado.isEmpty()) {
                 sop("Saliendo...");
@@ -110,6 +121,53 @@ public class PrestamoCN {
         }
         return true;
     }
+
+    public static boolean comprobarUsuarioPenalizado(Connection conn, String dniUsuario) {
+        String query = "SELECT penalizacion FROM usuarios WHERE dni = '" + dniUsuario + "'";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                String swPenalizacion = rs.getString("penalizacion");
+                return "SI".equalsIgnoreCase(swPenalizacion);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error SQL: " + e.getMessage());
+        }
+        return false;
+    }
+    public static int comprobarDiasPenalizado(Connection conn, String dniUsuario) {
+        String query = "SELECT fecha_inicio_penalizacion, fecha_fin_penalizacion FROM usuarios WHERE dni = '" + dniUsuario + "'";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                LocalDate fechaInicio = rs.getDate("fecha_inicio_penalizacion").toLocalDate();
+                LocalDate fechaFin = rs.getDate("fecha_fin_penalizacion").toLocalDate();
+                LocalDate hoy = LocalDate.now();
+
+                if ((hoy.isEqual(fechaInicio) || hoy.isAfter(fechaInicio)) && hoy.isBefore(fechaFin)) {
+                    return (int) ChronoUnit.DAYS.between(hoy, fechaFin);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error SQL: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public static boolean comprobarMasDe3Prestamos(Connection conn, String dniUsuario) {
+        String query = "SELECT COUNT(*) AS total FROM prestamos WHERE fk_dni_usuario = '" + dniUsuario + "' AND fecha_devolucion IS NULL";
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                int total = rs.getInt("total");
+                return total > 3;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error SQL: " + e.getMessage());
+        }
+        return false;
+    }
+
 
     public static int generarId() {
         Connection conn = getConexion();
@@ -344,7 +402,6 @@ public class PrestamoCN {
                     break;
                 default:
                     salir = true;
-                    Prestamo.menuPrestamo();
                     break;
             }
 
@@ -522,7 +579,6 @@ public class PrestamoCN {
                     break;
                 default:
                     salir = true;
-                    Prestamo.menuPrestamo();
                     break;
             }
 
