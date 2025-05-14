@@ -152,7 +152,7 @@ public class LibroCN {
                 } else {
                     try {
                         numEjemplares = Integer.parseInt(entrada);
-                        if (numEjemplares < 0) {
+                        if (numEjemplares <= 0) {
                             Io.sop("El número de ejemplares no puede ser negativo.");
                             valido = false;
                         }
