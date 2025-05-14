@@ -40,8 +40,8 @@ public class UsuarioCN {
         } while (opcion>0 );
     }
 
-//Metodo para iniciar fecha penalizacion si se modifica a si
-public static boolean modificarFechaPenalizacionSi(Connection conn, String palabra, String dni) {
+//Metodo para cambiar fechas de penalizacion cuando se modifica la penalizacion
+public static boolean modificarFechaPenalizacion(Connection conn, String palabra, String dni) {
     String sql;
     if (palabra.equalsIgnoreCase("si")) {
         // Obtener la fecha actual y sumarle 30 días
@@ -61,7 +61,6 @@ public static boolean modificarFechaPenalizacionSi(Connection conn, String palab
             return true;
         } catch (SQLException e) {
             System.out.println("Error al actualizar fechas de penalización.");
-            e.printStackTrace();
             return false;
         }
     } else if (palabra.equalsIgnoreCase("no")) {
@@ -505,7 +504,7 @@ public static String ejecutarValidarTelefono(Connection conn) {
             case '5':
                 campo = "penalizacion";
                 nuevoValor = ejecutarComprobarPenalizacion(conn);
-                modificarFechaPenalizacionSi(conn,nuevoValor,vModificar);
+                modificarFechaPenalizacion(conn,nuevoValor,vModificar);
                 break;
             case '6':
                 campo = "fecha_inicio_penalizacion";
