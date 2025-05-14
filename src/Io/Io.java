@@ -29,8 +29,8 @@ public static Connection getConexion(){
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection(url, user, pass);
     } catch (SQLException | ClassNotFoundException e) {
-        //Sop("Problemas al conectar");
-        //e.printStackTrace();
+        Sop("Problemas al conectar");
+        e.printStackTrace();
     }
     return conn;
 }
@@ -217,4 +217,10 @@ public static Connection getConexion(){
         }
         return letra;
     }
+
+
 }
+
+
+
+

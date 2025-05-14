@@ -1,6 +1,9 @@
 package conexiones;
 import Io.*;
 import static Io.Io.*;
+import static conexiones.UsuarioCN.menuUsuario;
+import static conexiones.UsuarioCN.padl;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -86,7 +89,7 @@ public class PrestamoCN {
 
         // Comprobar si el empleado existe
         do {
-            Busquedas.buscarEmpleados(conn, 5,1);
+            consultaTablaEmpleados(conn, 5,1);
             dniEmpleado = leerString("Ingresa de nuevo el DNI del empleado: ");
             if (dniEmpleado == null || dniEmpleado.isEmpty()) {
                 sop("Saliendo...");
@@ -334,6 +337,67 @@ public class PrestamoCN {
         } catch (SQLException e) {
             sop("❌ Error al cambiar el estado del ejemplar: " + sql);
             e.printStackTrace();
+        }
+    }
+    public static void consultaTablaEmpleados(Connection conn, int nRegPag, int nPag) {
+        Statement stm = null;
+        ResultSet rs = null;
+        boolean salir = false;
+        int offset;
+        String vDni, vNom, vEmail, sql, vPasword, vSeg, vTelefono;
+        String orden = "dni"; // Orden por defecto
+
+        while (!salir) {
+            offset = (nPag - 1) * nRegPag;
+            sql = "SELECT * FROM empleados ORDER BY " + orden + " LIMIT " + nRegPag + " OFFSET " + offset;
+
+            Io.sop("╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║                                                 LISTA DE EMPLEADOS  |  PÁGINA: " + nPag + "                                          ║");
+            Io.sop("╠═════════╦════════════════════════╦═══════════════════════════════╦═════════════════╦═════════════════╦════════════════════╣");
+            Io.sop("║   DNI   ║         NOMBRE         ║             EMAIL             ║     TELÉFONO    ║    PASSWORD     ║  SEGURIDAD SOCIAL  ║");
+            Io.sop("╚═════════╩════════════════════════╩═══════════════════════════════╩═════════════════╩═════════════════╩════════════════════╝");
+
+            try {
+                stm = conn.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                    vDni = padl(rs.getString("dni"), 9);
+                    vNom = padl(rs.getString("nombre"), 22);
+                    vEmail = padl(rs.getString("email"), 30);
+                    vTelefono = padl(rs.getString("telefono"), 16);
+                    vPasword = padl(rs.getString("password"), 15);
+                    vSeg = padl(rs.getString("seguridad_social"), 18);
+
+                    System.out.println(vDni + " | " + vNom + " | " + vEmail + " | " + vTelefono + " | " + vPasword + " | " + vSeg);
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al buscar empleados: " + e.getMessage());
+            }
+
+            Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ [+] Página Siguiente                                              [-] Página Anterior                                                    [X] Salir  ║");
+            Io.sop("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("Muevete por la tabla y selecciona el DNI del empleado: ");
+            char opc = Io.leerCaracter();
+            switch (opc) {
+                case '+':
+                    nPag++;
+                    break;
+                case '-':
+                    if (nPag > 1) {
+                        nPag--;
+                    } else {
+                        nPag = 1;
+                    }
+                    break;
+                case 'x' | 'X':
+                    salir = true;
+                    Prestamo.menuPrestamo();
+                    break;
+                default:
+                    salir = true;
+                    break;
+            }
         }
     }
     public static void consultaTablaPrestamo (Connection conn, int totalRegistros, int pagina) {
