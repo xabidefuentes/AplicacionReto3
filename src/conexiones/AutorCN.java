@@ -267,9 +267,11 @@ public class AutorCN {
                     break;
                 case 'x' | 'X':
                     salir = true;
+                    menuAutores();
                     break;
                 default:
                     salir = true;
+                    menuAutores();
                     break;
             }
         }

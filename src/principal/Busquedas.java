@@ -338,7 +338,7 @@ public class Busquedas {
                     break;
                 case 'X','x':
                     salir = true;
-                    Prestamo.menuPrestamo();
+                    menuBusquedas();
                     break;
                 default:
                     Io.sop("Opción no válida.");
@@ -381,9 +381,9 @@ public class Busquedas {
                 System.out.println("Error al buscar empleados: " + e.getMessage());
             }
 
-            Io.sop("╔═══════════════════════════════════════════════════════╦═══════════════════════════════════════════════════════════════════════════════════════════════╗");
-            Io.sop("║ ORDENAR POR: [NOMBRE (N)]          [FECHA (F)]        ║  [+] Página Siguiente                 [-] Página Anterior                         [X] Salir   ║");
-            Io.sop("╚═══════════════════════════════════════════════════════╩═══════════════════════════════════════════════════════════════════════════════════════════════╝");
+            Io.sop("╔═════════════════════════════════════════════════════╦═══════════════════════════════════════════════════════════════════════════════════════════════╗");
+            Io.sop("║ ORDENAR POR: [NOMBRE (N)]          [DNI (D)]        ║  [+] Página Siguiente                 [-] Página Anterior                         [X] Salir   ║");
+            Io.sop("╚═════════════════════════════════════════════════════╩═══════════════════════════════════════════════════════════════════════════════════════════════╝");
             Io.sop("Selecciona una opción: ");
             char opc = Character.toUpperCase(Io.leerCaracter());
 
@@ -398,8 +398,8 @@ public class Busquedas {
                     orden = "nombre";
                     nPag = 1;
                     break;
-                case 'F', 'f':
-                    orden = "fecha_contratacion"; // Asegúrate de que este campo exista en la tabla
+                case 'D', 'd':
+                    orden = "dni"; // Asegúrate de que este campo exista en la tabla
                     nPag = 1;
                     break;
                 case 'X', 'x':
