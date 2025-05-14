@@ -1,10 +1,10 @@
 package conexiones;
 
 import Io.Io;
+import java.sql.*;
+import java.time.LocalDate;
 import principal.Prestamo;
 import principal.main;
-
-import java.sql.*;
 
 public class UsuarioCN {
     // FUNCIONES
@@ -39,6 +39,48 @@ public class UsuarioCN {
             }
         } while (opcion>0 );
     }
+
+//Metodo para iniciar fecha penalizacion si se modifica a si
+public static boolean modificarFechaPenalizacionSi(Connection conn, String palabra, String dni) {
+    String sql;
+    if (palabra.equalsIgnoreCase("si")) {
+        // Obtener la fecha actual y sumarle 30 días
+        LocalDate fechaInicio = LocalDate.now();
+        LocalDate fechaFin = fechaInicio.plusDays(30);
+        String fechaInicioStr = fechaInicio.toString(); // Cambiamos la fecha a string yyyy-MM-dd
+        String fechaFinStr = fechaFin.toString();       // Cambiamos la fecha a string yyyy-MM-dd
+        sql = "UPDATE usuarios SET fecha_inicio_penalizacion = ?, fecha_fin_penalizacion = ? WHERE dni = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fechaInicioStr);
+            pstmt.setString(2, fechaFinStr);
+            pstmt.setString(3, dni);
+            pstmt.executeUpdate();
+            System.out.println("Penalización activada.");
+            System.out.println("Fecha de inicio: " + fechaInicioStr);
+            System.out.println("Fecha de fin: " + fechaFinStr);
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar fechas de penalización.");
+            e.printStackTrace();
+            return false;
+        }
+    } else if (palabra.equalsIgnoreCase("no")) {
+        // Desactiva penalización: borra ambas fechas
+        sql = "UPDATE usuarios SET fecha_inicio_penalizacion = 0000-00-00, fecha_fin_penalizacion = 0000-00-00 WHERE dni = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, dni);
+            pstmt.executeUpdate();
+            System.out.println("Penalización desactivada. Fechas eliminadas.");
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar fechas de penalización.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+    System.out.println("Valor no válido para penalización.");
+    return false;
+}
 
     // Metodo para borrar usuario
     public static void borrarUsuario() {
@@ -463,6 +505,7 @@ public static String ejecutarValidarTelefono(Connection conn) {
             case '5':
                 campo = "penalizacion";
                 nuevoValor = ejecutarComprobarPenalizacion(conn);
+                modificarFechaPenalizacionSi(conn,nuevoValor,vModificar);
                 break;
             case '6':
                 campo = "fecha_inicio_penalizacion";
@@ -503,6 +546,7 @@ public static String ejecutarValidarTelefono(Connection conn) {
         return true;
     }
 }
+
 
 
 
