@@ -172,7 +172,7 @@ public class Busquedas {
             }
 
             sop("╔═══════════════════════════════════════════════════════════════════════╦═══════════════════════════════════════════════════════════════════════════════════════════════╗");
-            sop("║ ORDENAR POR: [TITULO (T)]           [AÑO (A)]          [ISBN (I)]     ║  [+] Página Siguiente                 [-] Página Anterior                      [X] Salir      ║");
+            sop("║ ORDENAR POR: [TITULO (T)]           [AÑO (A)]          [GÉNERO (G)]     ║  [+] Página Siguiente                 [-] Página Anterior                      [X] Salir      ║");
             sop("╚═══════════════════════════════════════════════════════════════════════╩═══════════════════════════════════════════════════════════════════════════════════════════════╝");
 
             Io.sop("Muevete por la tabla y selecciona el libro o cambia orden/página: ");
@@ -191,8 +191,8 @@ public class Busquedas {
                 case 'A', 'a':
                     orden = "ano";
                     break;
-                case 'I', 'i':
-                    orden = "isbn";
+                case 'G', 'g':
+                    orden = "genero";
                     break;
                 case 'X' , 'x':
                     salir = true;

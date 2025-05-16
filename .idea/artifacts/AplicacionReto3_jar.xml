@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/AplicacionReto3_jar</output-path>
     <root id="archive" name="AplicacionReto3.jar">
       <element id="module-output" name="AplicacionReto3" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/junit-jupiter-api-5.13.0-M3-javadoc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/CONEXION JAR/mysql-connector-j-9.2.0.jar" path-in-jar="/" />
     </root>
   </artifact>
