@@ -35,10 +35,10 @@ public class AutorCN {
                 AutorCN.insertarAutor();
                 break;
             case 2:
-                AutorCN.borrarAutor();        
+                AutorCN.borrarAutorConsultandoTabla(getConexion(), 5, 1);
                 break;
             case 3:
-                AutorCN.modificarAutor(getConexion(), opcion, opcion);
+                AutorCN.modificarAutor(getConexion(), 5, 1);
                 break;
             case 4:
                 main.menuPrincipal();
@@ -182,13 +182,10 @@ public class AutorCN {
                     break;
                 default:
                     salir = true;
-                    menuAutores();
                     break;
             }
         }
-        String vIDborrado = Io
-                .leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ID del autor:  ");
-        Io.sop("Voy a borrar el "+vIDborrado);
+        String vIDborrado = Io.leerString("¿Estas seguro que quieres eliminarlo? Introduce de nuevo ID del autor:  ");
         if (AutorCN.borrarDato(conn, vIDborrado)) {
             System.out.println("Autor borrado correctamente");
         } else {
@@ -252,7 +249,7 @@ public class AutorCN {
             Io.sop("╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
             Io.sop("║ [+] Página Siguiente                              [-] Página Anterior                          [X] Salir        ║");
             Io.sop("╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
-            Io.sop("Muevete por la tabla y selecciona el dni del usuario que deseas modificar: ");
+            Io.sop("Muevete por la tabla y selecciona el ID del autor que deseas modificar: ");
             char opc = Io.leerCaracter();
             switch (opc) {
                 case '+':
@@ -271,17 +268,16 @@ public class AutorCN {
                     break;
                 default:
                     salir = true;
-                    menuAutores();
                     break;
             }
         }
-         String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo el id_autor:  ");
+         String vModificar = Io.leerString("¿Estas seguro que quieres modificarlo? Introduce de nuevo el ID:  ");
          if (!Io.comprobarExistencia(conn, "autores", "id_autor", vModificar)) {
                 Io.sop(" No existe ningún autor con ese ID.");
                 return;
             }
             Io.sop("¿Qué campo del usuario  deseas modificar?");
-            Io.sop("1. ID_Autor");
+            Io.sop("1. ID");
             Io.sop("2. Nombre");
             Io.sop("3. Apellidos");
             Io.sop("4. Fecha Nacimiento");
